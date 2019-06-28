@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,22 @@ class HullNode : public Node
 {
 public:
 	HullNode();
-	void accept(NodeVisitor&);
+
+	bool getChain() const;
+	void setChain(bool value);
+
+	bool getClosed() const;
+	void setClosed(bool value);
+
+	bool getConcave() const;
+	void setConcave(bool value);
+
+	void accept(NodeVisitor&) override;
+
+private:
+	bool chain;
+	bool closed;
+	bool concave;
 };
 
 #endif // HULLNODE_H

@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -27,28 +27,39 @@
 #include "scope.h"
 #include "node.h"
 #include "value.h"
+#include "reporter.h"
 
 class Context;
 
 class Module : public Declaration
 {
 public:
-	Module();
-	Module(const QString);
-	~Module();
+	Module(Reporter&, const QString&);
+	~Module() override;
 	QString getName() const;
-	void setName(QString);
+	void setName(const QString&);
+	QString getDescription() const;
+	bool getAuxilary() const;
 	QList<Parameter*> getParameters() const;
-	void setParameters(QList<Parameter*>);
+	void setParameters(const QList<Parameter*>&);
 	Scope* getScope() const;
 	void setScope(Scope*);
-	void accept(TreeVisitor&);
-	virtual Node* evaluate(Context*);
+	void accept(TreeVisitor&) override;
+	virtual Node* evaluate(const Context&) const;
+	bool isDeprecated() const;
 protected:
-	void addParameter(QString);
-	Value* getParameterArgument(Context*,int);
+	void addDescription(const QString&);
+	void addDeprecated(const QString&);
+	void addParameter(const QString&,const QString&);
+	Value* getParameterArgument(const Context&, int) const;
+	Value* getParameterArgument(const Context&, int, int) const;
+
+	bool auxilary;
+	Reporter& reporter;
 private:
 	QString name;
+	QString description;
+	bool deprecated;
 	QList<Parameter*> parameters;
 	Scope* scope;
 };

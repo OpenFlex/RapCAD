@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,22 +22,25 @@
 #include <QList>
 #include "value.h"
 #include "point.h"
+#include "numbervalue.h"
 
 class VectorValue : public Value
 {
 public:
-	VectorValue(QList<Value*>);
-	QString getValueString() const;
-	bool isTrue() const;
-	VectorValue* toVector(int);
+	explicit VectorValue(const QList<Value*>&);
+	QString getValueString() const override;
+	bool isTrue() const override;
+	VectorValue* toVector(int) override;
+	Value* toNumber() override;
 	Point getPoint() const;
-	Iterator<Value*>* createIterator();
+	virtual Value* getIndex(NumberValue*);
+	ValueIterator* createIterator() override;
 	virtual QList<Value*> getChildren();
 protected:
 	VectorValue();
+	Value* operation(Expression::Operator_e) override;
+	Value* operation(Value&,Expression::Operator_e) override;
 private:
-	Value* operation(Expression::Operator_e);
-	Value* operation(Value&,Expression::Operator_e);
 	Expression::Operator_e convertOperation(Expression::Operator_e);
 	QList<Value*> children;
 };

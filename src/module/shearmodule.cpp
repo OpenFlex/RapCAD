@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,52 +18,50 @@
 
 #include "shearmodule.h"
 #include "vectorvalue.h"
+#include "context.h"
 #include "node/transformationnode.h"
 
-ShearModule::ShearModule() : Module("shear")
+ShearModule::ShearModule(Reporter& r) : Module(r,"shear")
 {
-	addParameter("x");
-	addParameter("y");
-	addParameter("z");
+	addDescription(tr("Shears its children in the given planes."));
+	addParameter("x",tr("The yz plane."));
+	addParameter("y",tr("The xz plane."));
+	addParameter("z",tr("The xy plane."));
 }
 
-Node* ShearModule::evaluate(Context* ctx)
+Node* ShearModule::evaluate(const Context& ctx) const
 {
-	Point vecSx;
-	VectorValue* xVal=dynamic_cast<VectorValue*>(ctx->getArgument(0,"x"));
+	Point sx(0,0,0);
+	VectorValue* xVal=dynamic_cast<VectorValue*>(ctx.getArgument(0,"x"));
 	if(xVal)
-		vecSx=xVal->getPoint();
+		sx=xVal->getPoint();
 
-	Point vecSy;
-	VectorValue* yVal=dynamic_cast<VectorValue*>(ctx->getArgument(0,"y"));
+	Point sy(0,0,0);
+	VectorValue* yVal=dynamic_cast<VectorValue*>(ctx.getArgument(0,"y"));
 	if(yVal)
-		vecSy=yVal->getPoint();
+		sy=yVal->getPoint();
 
-	Point vecSz;
-	VectorValue* zVal=dynamic_cast<VectorValue*>(ctx->getArgument(0,"z"));
+	Point sz(0,0,0);
+	VectorValue* zVal=dynamic_cast<VectorValue*>(ctx.getArgument(0,"z"));
 	if(zVal)
-		vecSz=zVal->getPoint();
+		sz=zVal->getPoint();
 
-	double sxy=0,sxz=0;
-	vecSx.getXY(sxy,sxz);
+	auto* n=new TransformationNode();
+	n->setChildren(ctx.getInputNodes());
+	if(!xVal&&!yVal&&!zVal)
+		return n;
 
-	double syx=0,syz=0;
-	vecSy.getXY(syx,syz);
+	decimal sxy=sx.y(),sxz=sx.z();
+	decimal syx=sy.x(),syz=sy.z();
+	decimal szx=sz.x(),szy=sz.y();
 
-	double szx=0,szy=0;
-	vecSz.getXY(szx,szy);
-
-	double m[16] = {
+	auto* m = new TransformMatrix(
 		1,sxy,sxz,0,
 		syx,1,syz,0,
 		szx,szy,1,0,
 		0,0,0,1
-	};
+	);
 
-	TransformationNode* n=new TransformationNode();
-	for(int i=0; i<16; i++)
-		n->matrix[i]=m[i];
-
-	n->setChildren(ctx->getInputNodes());
+	n->setMatrix(m);
 	return n;
 }

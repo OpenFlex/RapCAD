@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,11 +18,43 @@
 
 #include "hullnode.h"
 
-HullNode::HullNode()
+HullNode::HullNode() :
+	chain(false),
+	closed(false),
+	concave(false)
 {
+}
+
+bool HullNode::getChain() const
+{
+	return chain;
+}
+
+void HullNode::setChain(bool value)
+{
+	chain=value;
+}
+bool HullNode::getClosed() const
+{
+	return closed;
+}
+
+void HullNode::setClosed(bool value)
+{
+	closed=value;
+}
+
+bool HullNode::getConcave() const
+{
+	return concave;
+}
+
+void HullNode::setConcave(bool value)
+{
+	concave = value;
 }
 
 void HullNode::accept(NodeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

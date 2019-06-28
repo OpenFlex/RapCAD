@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 
 #include "parameter.h"
 
-Parameter::Parameter()
+Parameter::Parameter() :
+	expression(nullptr)
 {
-	expression=NULL;
 }
 
 Parameter::~Parameter()
@@ -30,25 +30,35 @@ Parameter::~Parameter()
 
 QString Parameter::getName() const
 {
-	return this->name;
+	return name;
 }
 
-void Parameter::setName(QString name)
+void Parameter::setName(const QString& n)
 {
-	this->name = name;
+	name = n;
 }
 
 Expression* Parameter::getExpression() const
 {
-	return this->expression;
+	return expression;
 }
 
 void Parameter::setExpression(Expression* expr)
 {
-	this->expression = expr;
+	expression = expr;
+}
+
+void Parameter::addDescription(const QString& d)
+{
+	description=d;
+}
+
+QString Parameter::getDescription() const
+{
+	return description;
 }
 
 void Parameter::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

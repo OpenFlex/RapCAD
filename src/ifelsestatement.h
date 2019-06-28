@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -27,14 +27,14 @@ class IfElseStatement : public Statement
 {
 public:
 	IfElseStatement();
-	~IfElseStatement();
+	~IfElseStatement() override;
 	void setExpression(Expression*);
 	Expression* getExpression() const;
 	void setTrueStatement(Statement*);
 	Statement* getTrueStatement() const;
 	void setFalseStatement(Statement*);
 	Statement* getFalseStatement() const;
-	void accept(TreeVisitor&);
+	void accept(TreeVisitor&) override;
 private:
 	Expression* expression;
 	Statement* trueStatement;

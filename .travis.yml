@@ -1,0 +1,53 @@
+group: travis_latest
+dist: xenial
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+    - os: osx
+      compiler: clang
+
+addons:
+  apt:
+    packages:
+      - qt5-default
+      - qtbase5-dev
+      - libqt5opengl5-dev
+      - libboost-dev
+      - libcgal-dev
+      - bison
+      - flex
+      - libreadline-dev
+
+install:
+  - if [ $TRAVIS_OS_NAME = osx ]; then
+      brew update;
+      brew install qt5;
+      brew link --force qt5;
+    fi
+
+script:
+  - qmake -v
+  - qmake CONFIG+=coverage
+  - make -j4
+  - if [ $TRAVIS_OS_NAME = osx ]; then
+      ./rapcad.app/Contents/MacOS/rapcad -t test;
+    else
+      xvfb-run --server-args="-screen 0 1024x768x24" ./rapcad -t test;
+    fi;
+
+after_success:
+  - if [ $TRAVIS_OS_NAME != osx ]; then
+      bash <(curl -s https://raw.githubusercontent.com/codecov/codecov-bash/master/codecov) -a '-r';
+    fi
+
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#rapcad"
+    skip_join: true
+    template:
+      - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
+      - "Build details : %{build_url}"

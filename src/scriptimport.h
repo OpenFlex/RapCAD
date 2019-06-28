@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,12 +25,12 @@ class ScriptImport : public Declaration
 {
 public:
 	ScriptImport();
-	~ScriptImport();
-	void setImport(QString);
+	~ScriptImport() override;
+	void setImport(const QString&);
 	QString getImport() const;
-	void setNamespace(QString);
+	void setNamespace(const QString&);
 	QString getNamespace() const;
-	void accept(TreeVisitor&);
+	void accept(TreeVisitor&) override;
 private:
 	QString import;
 	QString name_space;

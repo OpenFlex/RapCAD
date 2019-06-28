@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,11 +25,14 @@ class SliceNode : public Node
 {
 public:
 	SliceNode();
-	void setHeight(double);
-	double getHeight();
-	void accept(NodeVisitor&);
+	void setHeight(decimal);
+	decimal getHeight() const;
+	void setThickness(decimal);
+	decimal getThickness() const;
+	void accept(NodeVisitor&) override;
 private:
-	double height;
+	decimal height;
+	decimal thickness;
 };
 
 #endif // SLICENODE_H

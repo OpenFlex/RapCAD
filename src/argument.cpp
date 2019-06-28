@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 
 #include "argument.h"
 
-Argument::Argument()
+Argument::Argument() :
+	variable(nullptr),
+	expression(nullptr)
 {
-	variable=NULL;
-	expression=NULL;
 }
 
 Argument::~Argument()
@@ -32,25 +32,25 @@ Argument::~Argument()
 
 void Argument::setVariable(Variable* var)
 {
-	this->variable = var;
+	variable = var;
 }
 
 Variable* Argument::getVariable() const
 {
-	return this->variable;
+	return variable;
 }
 
 void Argument::setExpression(Expression* exp)
 {
-	this->expression = exp;
+	expression = exp;
 }
 
 Expression* Argument::getExpression() const
 {
-	return this->expression;
+	return expression;
 }
 
 void Argument::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@
 #include <QColor>
 #include <QPoint>
 #include <QSize>
+#include <QVector3D>
+#include <QFont>
+#include "ui/glview.h"
 
 class Preferences
 {
@@ -29,85 +32,127 @@ public:
 	static Preferences* getInstance();
 	static void syncDelete();
 
-	double getDefaultRotationX();
-	void setDefaultRotationX(double d);
+	int getPrecision() const;
+	void setPrecision(int);
 
-	double getDefaultRotationZ();
-	void setDefaultRotationZ(double d);
+	int getDecimalPlaces() const;
+	void setDecimalPlaces(int);
 
-	double getDefaultX();
-	void setDefaultX(double d);
+	int getSignificandBits() const;
+	void setSignificandBits(int);
 
-	double getDefaultZ();
-	void setDefaultZ(double d);
+	int getFunctionRounding() const;
+	void setFunctionRounding(int);
 
-	double getDefaultDistance();
-	void setDefaultDistance(double d);
+	bool getRationalFormat() const;
+	void setRationalFormat(bool b);
 
-	QColor getMarkedVertexColor();
+	float getDefaultRotationX() const;
+	void setDefaultRotationX(float);
+
+	float getDefaultRotationY() const;
+	void setDefaultRotationY(float);
+
+	float getDefaultRotationZ() const;
+	void setDefaultRotationZ(float);
+
+	float getDefaultX() const;
+	void setDefaultX(float);
+
+	float getDefaultZ() const;
+	void setDefaultZ(float);
+
+	float getDefaultDistance() const;
+	void setDefaultDistance(float);
+
+	QColor getMarkedVertexColor() const;
 	void setMarkedVertexColor(QColor);
 
-	QColor getVertexColor();
+	QColor getVertexColor() const;
 	void setVertexColor(QColor);
 
-	QColor getMarkedEdgeColor();
+	QColor getMarkedEdgeColor() const;
 	void setMarkedEdgeColor(QColor);
 
-	QColor getEdgeColor();
+	QColor getEdgeColor() const;
 	void setEdgeColor(QColor);
 
-	QColor getMarkedFacetColor();
+	QColor getMarkedFacetColor() const;
 	void setMarkedFacetColor(QColor);
 
-	QColor getFacetColor();
+	QColor getFacetColor() const;
 	void setFacetColor(QColor);
 
-	bool getShowAxes();
+	bool getShowAxes() const;
 	void setShowAxes(bool);
 
-	bool getShowEdges();
+	bool getShowEdges() const;
 	void setShowEdges(bool);
 
-	bool getSkeleton();
+	bool getSkeleton() const;
 	void setSkeleton(bool);
 
-	bool getShowBase();
+	bool getShowBase() const;
 	void setShowBase(bool);
 
-	bool getShowPrintArea();
+	bool getShowPrintArea() const;
 	void setShowPrintArea(bool);
 
-	bool getShowRulers();
+	bool getShowRulers() const;
 	void setShowRulers(bool);
 
-	bool getShowEditor();
+	bool getShowEditor() const;
 	void setShowEditor(bool);
 
-	bool getShowConsole();
+	bool getShowConsole() const;
 	void setShowConsole(bool);
 
-	bool getShowProjects();
+	bool getShowProjects() const;
 	void setShowProjects(bool);
 
 	void setWindowPosition(QPoint);
-	QPoint getWindowPosition();
+	QPoint getWindowPosition() const;
 
 	void setWindowSize(QSize);
-	QSize getWindowSize();
+	QSize getWindowSize() const;
 
-	void setVertexSize(double);
-	double getVertexSize();
+	void setVertexSize(float);
+	float getVertexSize() const;
 
-	void setEdgeSize(double);
-	double getEdgeSize();
+	void setEdgeSize(float);
+	float getEdgeSize() const;
 
 	void setAutoSaveOnCompile(bool);
-	bool getAutoSaveOnCompile();
+	bool getAutoSaveOnCompile() const;
+
+	void setCacheEnabled(bool);
+	bool getCacheEnabled() const;
+
+	QPointF getPrintOrigin() const;
+	void setPrintOrigin(QPointF s);
+
+	QVector3D getPrintVolume() const;
+	void setPrintVolume(QVector3D v);
+
+	GLView::Appearance_t getPrintBedAppearance() const;
+	void setPrintBedAppearance(GLView::Appearance_t);
+
+	QFont getEditorFont() const;
+	void setEditorFont(const QFont&);
+
+	bool getShowTooltips() const;
+	void setShowTooltips(bool);
+
+	bool getHighlightLine() const;
+	void setHighlightLine(bool value);
 
 private:
 	Preferences();
+	void updatePrecision();
+
 	static Preferences* instance;
 	QSettings* settings;
+	int precision;
 };
 
 #endif // PREFERENCES_H

@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,11 +18,11 @@
 
 #include "ifelsestatement.h"
 
-IfElseStatement::IfElseStatement()
+IfElseStatement::IfElseStatement() :
+	expression(nullptr),
+	trueStatement(nullptr),
+	falseStatement(nullptr)
 {
-	expression=NULL;
-	trueStatement=NULL;
-	falseStatement=NULL;
 }
 
 IfElseStatement::~IfElseStatement()
@@ -34,35 +34,35 @@ IfElseStatement::~IfElseStatement()
 
 void IfElseStatement::setExpression(Expression* expr)
 {
-	this->expression = expr;
+	expression = expr;
 }
 
 Expression* IfElseStatement::getExpression() const
 {
-	return this->expression;
+	return expression;
 }
 
 void IfElseStatement::setTrueStatement(Statement* stmt)
 {
-	this->trueStatement = stmt;
+	trueStatement = stmt;
 }
 
 Statement* IfElseStatement::getTrueStatement() const
 {
-	return this->trueStatement;
+	return trueStatement;
 }
 
 void IfElseStatement::setFalseStatement(Statement* stmt)
 {
-	this->falseStatement = stmt;
+	falseStatement = stmt;
 }
 
 Statement* IfElseStatement::getFalseStatement() const
 {
-	return this->falseStatement;
+	return falseStatement;
 }
 
 void IfElseStatement::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

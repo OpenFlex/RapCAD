@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,34 +17,45 @@
  */
 
 #include "booleanvalue.h"
+#include "numbervalue.h"
 
-BooleanValue::BooleanValue(bool value)
+BooleanValue::BooleanValue(bool value) :
+	boolean(value)
 {
-	this->boolean=value;
-	this->defined=true;
 }
 
 QString BooleanValue::getValueString() const
 {
-	return this->boolean ? "true" : "false";
+	return boolean ? "true" : "false";
+}
+
+Value* BooleanValue::toNumber()
+{
+	decimal result=boolean?1.0:0.0;
+	return new NumberValue(result);
 }
 
 bool BooleanValue::isTrue() const
 {
-	return this->boolean;
+	return boolean;
 }
 
 Value* BooleanValue::operation(Expression::Operator_e e)
 {
-	bool result = Value::basicOperation<bool,bool>(this->boolean,e);
+	bool result=basicOperation(boolean,e);
 	return new BooleanValue(result);
 }
 
 Value* BooleanValue::operation(Value& v,Expression::Operator_e e)
 {
-	BooleanValue* that = dynamic_cast<BooleanValue*>(&v);
+	auto* that=dynamic_cast<BooleanValue*>(&v);
 	if(that) {
-		bool result = Value::basicOperation<bool,bool>(this->boolean,e,that->boolean);
+		bool result=basicOperation(this->boolean,e,that->boolean);
+		return new BooleanValue(result);
+	}
+	auto* num=dynamic_cast<NumberValue*>(&v);
+	if(num && isComparison(e)) {
+		bool result=basicOperation(this->boolean?1:0,e,num->toInteger());
 		return new BooleanValue(result);
 	}
 

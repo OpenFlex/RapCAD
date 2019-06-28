@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,21 +17,23 @@
  */
 
 #include "lnfunction.h"
+#include "context.h"
 #include "numbervalue.h"
-#include <math.h>
+#include "rmath.h"
 
 LnFunction::LnFunction() : Function("ln")
 {
+	addDescription(tr("Returns the natural log of the number."));
 	addParameter("value");
 }
 
-Value* LnFunction::evaluate(Context* ctx)
+Value* LnFunction::evaluate(const Context& ctx) const
 {
-	NumberValue* numVal=dynamic_cast<NumberValue*>(getParameterArgument(ctx,0));
+	auto* numVal=dynamic_cast<NumberValue*>(getParameterArgument(ctx,0));
 	if(numVal) {
-		double num=numVal->getNumber();
+		decimal num=numVal->getNumber();
 
-		return new NumberValue(log(num));
+		return new NumberValue(r_log(num));
 	}
-	return new Value();
+	return Value::undefined();
 }

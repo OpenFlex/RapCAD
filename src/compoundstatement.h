@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,10 +26,10 @@ class CompoundStatement : public Scope
 {
 public:
 	CompoundStatement();
-	~CompoundStatement();
-	void setChildren(QList<Statement*>);
+	~CompoundStatement() override;
+	void setChildren(const QList<Statement*>&);
 	QList<Statement*> getChildren() const;
-	void accept(TreeVisitor&);
+	void accept(TreeVisitor&) override;
 private:
 	QList<Statement*> children;
 };

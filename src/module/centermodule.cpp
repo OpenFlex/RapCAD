@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,15 +17,18 @@
  */
 
 #include "centermodule.h"
-#include "node/centernode.h"
+#include "context.h"
+#include "node/alignnode.h"
 
-CenterModule::CenterModule() : Module("center")
+CenterModule::CenterModule(Reporter& r) : Module(r,"center")
 {
+	addDescription(tr("Centers its children to the origin."));
 }
 
-Node* CenterModule::evaluate(Context* ctx)
+Node* CenterModule::evaluate(const Context& ctx) const
 {
-	CenterNode* n=new CenterNode();
-	n->setChildren(ctx->getInputNodes());
+	auto* n=new AlignNode();
+	n->setChildren(ctx.getInputNodes());
+	n->setCenter(true);
 	return n;
 }

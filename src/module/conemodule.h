@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,9 +23,10 @@
 
 class ConeModule : public PrimitiveModule
 {
+	Q_DECLARE_TR_FUNCTIONS(ConeModule)
 public:
-	ConeModule();
-	Node* evaluate(Context*);
+	explicit ConeModule(Reporter&);
+	Node* evaluate(const Context&) const override;
 };
 
 #endif // CONEMODULE_H

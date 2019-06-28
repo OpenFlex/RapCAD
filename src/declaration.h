@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,12 @@ class Declaration : public VisitableTree
 {
 public:
 	Declaration();
-	virtual ~Declaration();
+	~Declaration() override;
+
+	int getLineNumber() const;
+	void setLineNumber(int value);
+private:
+	int lineNumber;
 };
 
 #endif // DECLARATION_H

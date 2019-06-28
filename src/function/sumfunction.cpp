@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,23 +17,25 @@
  */
 
 #include "sumfunction.h"
+#include "context.h"
 #include "vectorvalue.h"
 #include "numbervalue.h"
 
 SumFunction::SumFunction() : Function("sum")
 {
+	addDescription(tr("Returns the sum of the given vector of values."));
 	addParameter("values");
 }
 
-Value* SumFunction::evaluate(Context* ctx)
+Value* SumFunction::evaluate(const Context& ctx) const
 {
-	VectorValue* vecVal=dynamic_cast<VectorValue*>(getParameterArgument(ctx,0));
+	auto* vecVal=dynamic_cast<VectorValue*>(getParameterArgument(ctx,0));
 	if(vecVal) {
 		Value* resultVal = new NumberValue(0);
-		foreach(Value* child, vecVal->getChildren())
+		for(Value* child: vecVal->getChildren())
 			resultVal=Value::operation(resultVal,Expression::Add,child);
 
 		return resultVal;
 	}
-	return new Value();
+	return Value::undefined();
 }

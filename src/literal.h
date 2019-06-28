@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,16 +26,17 @@ class Literal : public Expression
 {
 public:
 	Literal();
-	~Literal();
 	void setValue(bool);
-	void setValue(double);
-	void setValue(QString);
-	QString getValueString() const;
+	void setValue(decimal);
+	void setValue(const QString&);
+	void setUnit(const QString&);
 
+	QString getValueString() const;
 	Value* getValue() const;
 
-	void accept(TreeVisitor&);
+	void accept(TreeVisitor&) override;
 private:
+
 	enum DataType {
 		Undef,
 		Boolean,
@@ -44,9 +45,10 @@ private:
 	};
 
 	bool boolean;
-	double number;
+	decimal number;
 	QString text;
 	DataType type;
+	decimal unit;
 };
 
 #endif // LITERAL_H

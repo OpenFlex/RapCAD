@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,70 +18,49 @@
 
 #include "point.h"
 
-bool Point::operator ==(const Point that) const
+#ifndef USE_CGAL
+bool Point::operator ==(const Point& that) const
 {
-	return this->x==that.x&&this->y==that.y&&this->z==that.z;
+	return _x==that._x&&_y==that._y&&_z==that._z;
 }
 
-double Point::getX() const
+decimal Point::x() const
 {
-	return x;
+	return _x;
 }
 
-double Point::getY() const
+decimal Point::y() const
 {
-	return y;
+	return _y;
 }
 
-double Point::getZ() const
+decimal Point::z() const
 {
-	return z;
+	return _z;
 }
 
-void Point::getXYZ(double& x, double& y, double& z) const
+Point Point::transform(TransformMatrix* matrix) const
 {
-	x=this->x;
-	y=this->y;
-	z=this->z;
+	const decimal* m=matrix->getValues();
+	decimal nx,ny,nz;
+	nx=(m[ 0]*_x+m[ 1]*_y+m[ 2]*_z+m[ 3]);
+	ny=(m[ 4]*_x+m[ 5]*_y+m[ 6]*_z+m[ 7]);
+	nz=(m[ 8]*_x+m[ 9]*_y+m[10]*_z+m[11]);
+	return Point(nx,ny,nz);
 }
+#endif
 
-void Point::getXY(double& x, double& y) const
-{
-	x=this->x;
-	y=this->y;
-}
-
-QString Point::toString() const
+QString to_string(const Point& p)
 {
 	QString res;
 	res.append("[");
-	res.append(toString(x));
+	res.append(to_string(p.x()));
 	res.append(",");
-	res.append(toString(y));
+	res.append(to_string(p.y()));
 	res.append(",");
-	res.append(toString(z));
+	res.append(to_string(p.z()));
 	res.append("]");
 
 	return res;
 }
 
-QString Point::toString(const double d) const
-{
-	QString res;
-	res.setNum(d,'f',16);
-	int j=0;
-	//Trim trailing zeros. res will always be
-	//in the form X.XX.. so we can cheat here
-	for(int i=res.size()-1; i>=0; i--) {
-		if(res.at(i)!='0') {
-			if(res.at(i)=='.')
-				j++;
-			break;
-		} else {
-			j++;
-		}
-	}
-	res.chop(j);
-
-	return res;
-}

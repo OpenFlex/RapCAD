@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,11 +18,11 @@
 
 #include "rangeexpression.h"
 
-RangeExpression::RangeExpression()
+RangeExpression::RangeExpression() :
+	start(nullptr),
+	finish(nullptr),
+	step(nullptr)
 {
-	start=NULL;
-	finish=NULL;
-	step=NULL;
 }
 
 RangeExpression::~RangeExpression()
@@ -34,35 +34,35 @@ RangeExpression::~RangeExpression()
 
 void RangeExpression::setStart(Expression* srt)
 {
-	this->start = srt;
+	start = srt;
 }
 
 Expression* RangeExpression::getStart() const
 {
-	return this->start;
+	return start;
 }
 
 void RangeExpression::setFinish(Expression* fin)
 {
-	this->finish = fin;
+	finish = fin;
 }
 
 Expression* RangeExpression::getFinish() const
 {
-	return this->finish;
+	return finish;
 }
 
 void RangeExpression::setStep(Expression* stp)
 {
-	this->step = stp;
+	step = stp;
 }
 
 Expression* RangeExpression::getStep() const
 {
-	return this->step;
+	return step;
 }
 
 void RangeExpression::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

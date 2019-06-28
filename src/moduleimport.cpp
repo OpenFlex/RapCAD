@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,37 +26,37 @@ ModuleImport::~ModuleImport()
 {
 }
 
-void ModuleImport::setImport(QString imp)
+void ModuleImport::setImport(const QString& imp)
 {
-	this->import = imp;
+	import = imp;
 }
 
 QString ModuleImport::getImport() const
 {
-	return this->import;
+	return import;
 }
 
-void ModuleImport::setName(QString name)
+void ModuleImport::setName(const QString& n)
 {
-	this->name = name;
+	name = n;
 }
 
 QString ModuleImport::getName() const
 {
-	return this->name;
+	return name;
 }
 
-void ModuleImport::setParameters(QList<Parameter*> params)
+void ModuleImport::setParameters(const QList<Parameter*>& params)
 {
-	this->parameters = params;
+	parameters = params;
 }
 
 QList<Parameter*> ModuleImport::getParameters() const
 {
-	return this->parameters;
+	return parameters;
 }
 
 void ModuleImport::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

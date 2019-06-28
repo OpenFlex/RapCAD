@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,61 +21,81 @@
 #include "numbervalue.h"
 #include "textvalue.h"
 
-Literal::Literal()
-{
-}
-
-Literal::~Literal()
+Literal::Literal() :
+	boolean(false),
+	type(Undef),
+	unit(1)
 {
 }
 
 void Literal::setValue(bool value)
 {
-	this->type=Literal::Boolean;
-	this->boolean = value;
+	type = Boolean;
+	boolean = value;
 }
 
-void Literal::setValue(double value)
+void Literal::setValue(decimal value)
 {
-	this->type = Literal::Number;
-	this->number = value;
+	type = Number;
+	number = value;
 }
 
-void Literal::setValue(QString value)
+void Literal::setValue(const QString& value)
 {
-	this->type = Literal::Text;
-	this->text = value;
+	type = Text;
+	text = value;
+}
+
+void Literal::setUnit(const QString& value)
+{
+	text=value;
+	if(value=="m")
+		unit=1000;
+	else if(value=="cm")
+		unit=10;
+	else if(value=="mm")
+		unit=1;
+	else if(value=="um")
+		unit=decimal(1)/1000;
+	else if(value=="ft")
+		unit=decimal(3048)/10;
+	else if(value=="in")
+		unit=decimal(254)/10;
+	else if(value=="th")
+		unit=decimal(254)/10000;
+	else
+		type=Undef;
 }
 
 QString Literal::getValueString() const
 {
-	switch(this->type) {
-	case Boolean:
-		return this->boolean ? "true" : "false";
-	case Number:
-		return QString().setNum(this->number,'g',16);
-	case Text:
-		return QString("\"%1\"").arg(text);
-	default:
-		return "undef";
+	switch(type) {
+		case Boolean:
+			return boolean ? "true" : "false";
+		case Number:
+			return to_string(number).append(text);
+		case Text:
+			return QString("\"%1\"").arg(text);
+		default:
+			return "undef";
 	}
 }
 
 Value* Literal::getValue() const
 {
-	switch(this->type) {
-	case Boolean:
-		return new BooleanValue(boolean);
-	case Number:
-		return new NumberValue(number);
-	case Text:
-		return new TextValue(text);
-	default:
-		return new Value();
+	switch(type) {
+		case Boolean:
+			return new BooleanValue(boolean);
+		case Number:
+			return new NumberValue(number*unit);
+		case Text:
+			return new TextValue(text);
+		default:
+			return Value::undefined();
 	}
 }
 
 void Literal::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

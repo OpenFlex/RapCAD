@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,46 +17,49 @@
  */
 
 #include "scalemodule.h"
+#include "context.h"
 #include "vectorvalue.h"
 #include "node/transformationnode.h"
+#include "node/pointsnode.h"
 
-ScaleModule::ScaleModule() : Module("scale")
+ScaleModule::ScaleModule(Reporter& r) : Module(r,"scale")
 {
-	addParameter("size");
-	addParameter("reference");
+	addDescription(tr("Scales its children by the given vector."));
+	addParameter("size",tr("The factor by which to scale the object."));
+	addParameter("reference",tr("A center reference point for the scaling."));
 }
 
-Node* ScaleModule::evaluate(Context* ctx)
+Node* ScaleModule::evaluate(const Context& ctx) const
 {
-	Point size;
-	VectorValue* sizeVal=dynamic_cast<VectorValue*>(getParameterArgument(ctx,0));
-	if(sizeVal)
-		size=sizeVal->getPoint();
+	Point s(1,1,1);
+	auto* sizeVal=getParameterArgument(ctx,0);
+	if(sizeVal) {
+		VectorValue* v=sizeVal->toVector(3);
+		s=v->getPoint();
+	}
 
-	Point ref;
-	VectorValue* refVal=dynamic_cast<VectorValue*>(getParameterArgument(ctx,1));
+	decimal x=s.x(),y=s.y(),z=s.z();
+	if(x==0.0||y==0.0||z==0.0)
+		return new PointsNode();
+
+	Point r(0,0,0);
+	auto* refVal=dynamic_cast<VectorValue*>(getParameterArgument(ctx,1));
 	if(refVal)
-		ref=refVal->getPoint();
+		r=refVal->getPoint();
 
-	double x=0,y=0,z=0;
-	size.getXYZ(x,y,z);
-
-	double a=0,b=0,c=0;
-	ref.getXYZ(a,b,c);
+	decimal a=r.x(),b=r.y(),c=r.z();
 
 	//Derived reference translation using
-	//http://tinyurl.com/3zhnpkw
-	double m[16] = {
-		x,0,0,0,
-		0,y,0,0,
-		0,0,z,0,
-		a-(a*x),b-(b*x),c-(c*x),1
-	};
+	//http://tinyurl.com/nfmph3r
+	auto* m = new TransformMatrix(
+		x,0,0,(a*x)-a,
+		0,y,0,(b*y)-b,
+		0,0,z,(c*z)-c,
+		0,0,0,1
+	);
 
-	TransformationNode* n=new TransformationNode();
-	for(int i=0; i<16; i++)
-		n->matrix[i]=m[i];
-
-	n->setChildren(ctx->getInputNodes());
+	auto* n=new TransformationNode();
+	n->setChildren(ctx.getInputNodes());
+	n->setMatrix(m);
 	return n;
 }

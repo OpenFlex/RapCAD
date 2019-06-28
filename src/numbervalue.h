@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,14 +24,16 @@
 class NumberValue : public Value
 {
 public:
-	NumberValue(double);
-	QString getValueString() const;
-	bool isTrue() const;
-	double getNumber() const;
+	explicit NumberValue(decimal);
+	QString getValueString() const override;
+	bool isTrue() const override;
+	decimal getNumber() const;
+	Value* toNumber() override;
+	int toInteger() const;
 private:
-	Value* operation(Expression::Operator_e);
-	Value* operation(Value&,Expression::Operator_e);
-	double number;
+	Value* operation(Expression::Operator_e) override;
+	Value* operation(Value&,Expression::Operator_e) override;
+	decimal number;
 };
 
 #endif // NUMBERVALUE_H

@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,64 +25,64 @@ Instance::Instance()
 
 Instance::~Instance()
 {
-	for(int i=0; i<arguments.size(); i++)
-		delete arguments.at(i);
+	for(Argument* a: arguments)
+		delete a;
 
-	for(int i=0; i<children.size(); i++)
-		delete children.at(i);
+	for(Statement* s: children)
+		delete s;
 }
 
-void Instance::setName(QString name)
+void Instance::setName(const QString& n)
 {
-	this->name = name;
+	name = n;
 }
 
 QString Instance::getName() const
 {
-	return this->name;
+	return name;
 }
 
-void Instance::setArguments(QList<Argument*> args)
+void Instance::setArguments(const QList<Argument*>& args)
 {
-	this->arguments = args;
+	arguments = args;
 }
 
 QList<Argument*> Instance::getArguments() const
 {
-	return this->arguments;
+	return arguments;
 }
 
-void Instance::setChildren(QList <Statement*> childs)
+void Instance::setChildren(const QList <Statement*>& childs)
 {
-	this->children = childs;
+	children = childs;
 }
 
 void Instance::setType(Type_e t)
 {
-	this->type = t;
+	type = t;
 }
 
 Instance::Type_e Instance::getType() const
 {
-	return this->type;
+	return type;
 }
 
 QList <Statement*> Instance::getChildren() const
 {
-	return this->children;
+	return children;
 }
 
-void Instance::setNamespace(QString name)
+void Instance::setNamespace(const QString& name)
 {
-	this->name_space = name;
+	name_space = name;
 }
 
 QString Instance::getNamespace() const
 {
-	return this->name_space;
+	return name_space;
 }
 
 void Instance::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

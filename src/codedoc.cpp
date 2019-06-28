@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ CodeDoc::CodeDoc()
 {
 }
 
-void CodeDoc::setName(QString n)
+void CodeDoc::setName(const QString& n)
 {
 	name=n;
 }
@@ -32,7 +32,7 @@ QString CodeDoc::getName() const
 	return name;
 }
 
-void CodeDoc::setText(QString t)
+void CodeDoc::setText(const QString& t)
 {
 	text=t;
 }
@@ -44,5 +44,5 @@ QString CodeDoc::getText() const
 
 void CodeDoc::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

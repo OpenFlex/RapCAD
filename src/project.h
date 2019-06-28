@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,12 +26,12 @@ class Project
 {
 public:
 	Project();
-	QList<QString> getSources();
-	void setSources(QList<QString>);
-	void parseProject(QString);
+	QList<QString> getSources() const;
+	void setSources(const QList<QString>&);
+	void parseProject(const QString&);
 	void parseSource(QXmlStreamReader&);
 	void parseName(QXmlStreamReader&);
-	void writeProject(QString);
+	void writeProject(const QString&);
 private:
 	QList<QString> sources;
 	QString name;

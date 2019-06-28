@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,19 +17,26 @@
  */
 
 #include "unionmodule.h"
+#include "context.h"
 #include "node/unionnode.h"
 
-UnionModule::UnionModule() : Module("union")
+UnionModule::UnionModule(Reporter& r) : Module(r,"union")
 {
+	addDescription(tr("Unions its children into single geometry."));
 }
 
-UnionModule::UnionModule(const QString s) : Module(s)
+Node* UnionModule::evaluate(const Context& ctx) const
 {
+	return createUnion(ctx.getInputNodes());
 }
 
-Node* UnionModule::evaluate(Context* ctx)
+Node* UnionModule::createUnion(const QList<Node*>& childnodes)
 {
-	UnionNode* d = new UnionNode();
-	d->setChildren(ctx->getInputNodes());
-	return d;
+	if(childnodes.size()==1) {
+		return childnodes.at(0);
+	} else {
+		auto* u=new UnionNode();
+		u->setChildren(childnodes);
+		return u;
+	}
 }

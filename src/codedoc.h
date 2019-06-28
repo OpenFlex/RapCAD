@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@ class CodeDoc : VisitableTree
 {
 public:
 	CodeDoc();
-	void setName(QString);
+	void setName(const QString&);
 	QString getName() const;
-	void setText(QString);
+	void setText(const QString&);
 	QString getText() const;
-	void accept(TreeVisitor&);
+	void accept(TreeVisitor&) override;
 private:
 	QString name;
 	QString text;

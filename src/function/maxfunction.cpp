@@ -1,22 +1,33 @@
+/*
+ *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
+ *   Copyright (C) 2010-2019 Giles Bathgate
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "maxfunction.h"
-#include "numbervalue.h"
-#include "math.h"
+#include "context.h"
 
 MaxFunction::MaxFunction() : Function("max")
 {
-	addParameter("a");
-	addParameter("b");
+	addDescription(tr("Returns the largest of the given values."));
+	addParameter("values");
 }
 
-Value* MaxFunction::evaluate(Context* ctx)
+Value* MaxFunction::evaluate(const Context& ctx) const
 {
-	NumberValue* aVal=dynamic_cast<NumberValue*>(getParameterArgument(ctx,0));
-	NumberValue* bVal=dynamic_cast<NumberValue*>(getParameterArgument(ctx,1));
-	if(aVal&&bVal) {
-		double a=aVal->getNumber();
-		double b=bVal->getNumber();
+	QList<Value*> values=ctx.getArgumentValues();
 
-		return new NumberValue(fmax(a,b));
-	}
-	return new Value();
+	return Value::compareAll(values,Expression::GreaterThan);
 }

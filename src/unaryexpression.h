@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,11 +25,11 @@ class UnaryExpression : public Expression
 {
 public:
 	UnaryExpression();
-	~UnaryExpression();
+	~UnaryExpression() override;
 
 	void setExpression(Expression*);
 	Expression* getExpression() const;
-	void accept(TreeVisitor&);
+	void accept(TreeVisitor&) override;
 private:
 	Expression* expression;
 };

@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
+#include <QCoreApplication>
 #include <QString>
 #include <QList>
 #include "declaration.h"
@@ -33,23 +34,28 @@ class Function : public Declaration
 {
 public:
 	Function();
-	Function(QString);
-	~Function();
+	explicit Function(const QString&);
+	~Function() override;
 	QString getName() const;
-	void setName(QString);
+	void setName(const QString&);
 	QList<Parameter*> getParameters() const;
-	void setParameters(QList<Parameter*>);
+	void setParameters(const QList<Parameter*>&);
 	Scope* getScope() const;
 	void setScope(Scope*);
-	void accept(TreeVisitor&);
-	virtual Value* evaluate(Context*);
+	void accept(TreeVisitor&) override;
+	virtual Value* evaluate(const Context&) const;
+	QString getDescription() const;
+
 protected:
-	void addParameter(QString);
-	Value* getParameterArgument(Context*,int);
+	void addDescription(const QString&);
+	void addParameter(const QString&);
+	void addParameter(const QString&,const QString&);
+	Value* getParameterArgument(const Context&, int) const;
 private:
-	QString name;
-	QList<Parameter*> parameters;
 	Scope* scope;
+	QString name;
+	QString description;
+	QList<Parameter*> parameters;
 };
 
 #endif // FUNCTION_H

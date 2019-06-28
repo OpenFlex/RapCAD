@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@
 class ImportNode : public Node
 {
 public:
-	ImportNode(QString);
-	void accept(NodeVisitor&);
-	QString getImport();
+	explicit ImportNode(const QString&);
+	void accept(NodeVisitor&) override;
+	QString getImport() const;
 private:
 	QString import;
 };

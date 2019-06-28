@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,15 +17,25 @@
  */
 
 #include "hullmodule.h"
+#include "context.h"
 #include "node/hullnode.h"
+#include "booleanvalue.h"
 
-HullModule::HullModule() : Module("hull")
+HullModule::HullModule(Reporter& r) : Module(r,"hull")
 {
+	addDescription(tr("Creates a boundry shape from the points of its children."));
+	addParameter("concave",tr("Determines whether the hull may be concave"));
 }
 
-Node* HullModule::evaluate(Context* ctx)
+Node* HullModule::evaluate(const Context& ctx) const
 {
-	HullNode* d = new HullNode();
-	d->setChildren(ctx->getInputNodes());
+	bool concave=false;
+	auto* concaveVal = dynamic_cast<BooleanValue*>(getParameterArgument(ctx,0));
+	if(concaveVal)
+		concave=concaveVal->isTrue();
+
+	auto* d = new HullNode();
+	d->setConcave(concave);
+	d->setChildren(ctx.getInputNodes());
 	return d;
 }

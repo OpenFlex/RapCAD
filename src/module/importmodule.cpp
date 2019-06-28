@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,18 +18,25 @@
 
 #include "importmodule.h"
 #include "node/importnode.h"
+#include "textvalue.h"
+#include "context.h"
 
-ImportModule::ImportModule()
+ImportModule::ImportModule(Reporter& r) : Module(r,"import")
 {
+	addDeprecated(tr("The import module is depricated please use the import declaration instead."));
+	addParameter("file", tr("The name of the file to import."));
 }
 
-Node* ImportModule::evaluate(Context*)
+Node* ImportModule::evaluate(const Context& ctx) const
 {
-	//TODO instance specific args
+	auto* fileVal = dynamic_cast<TextValue*>(getParameterArgument(ctx,0));
+	if(fileVal)
+		return new ImportNode(fileVal->getValueString());
+
 	return new ImportNode(import);
 }
 
-void ImportModule::setImport(QString imp)
+void ImportModule::setImport(const QString& imp)
 {
 	import = imp;
 }

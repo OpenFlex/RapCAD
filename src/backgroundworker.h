@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,19 +19,25 @@
 #ifndef BACKGROUNDWORKER_H
 #define BACKGROUNDWORKER_H
 
+#include <QObject>
 #include <QThread>
+#include <QTextStream>
 #include "worker.h"
 
-class BackgroundWorker : public Worker
+class BackgroundWorker : public QObject, public Worker
 {
 	Q_OBJECT
 public:
-	BackgroundWorker(QTextStream&,QObject* parent = 0);
-	virtual ~BackgroundWorker();
-	void setup(QString);
-	void evaluate();
+	BackgroundWorker(Reporter&, QObject* parent = nullptr);
+	~BackgroundWorker() override;
+	int evaluate() override;
+signals:
+	void done();
+protected slots:
+	void start();
 private:
-	void finish();
+	void update() override;
+	void finish() override;
 	QThread* thread;
 };
 

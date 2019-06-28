@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,23 +17,32 @@
  */
 
 #include "slicemodule.h"
+#include "context.h"
 #include "node/slicenode.h"
 #include "numbervalue.h"
 
-SliceModule::SliceModule() : Module("slice")
+SliceModule::SliceModule(Reporter& r) : Module(r,"slice")
 {
-	addParameter("height");
+	addDescription(tr("Slices its children at the given height."));
+	addParameter("height",tr("The height at which to slice."));
+	addParameter("thickness",tr("The thickness of the slice."));
 }
 
-Node* SliceModule::evaluate(Context* ctx)
+Node* SliceModule::evaluate(const Context& ctx) const
 {
-	double h=0.0;
-	NumberValue* height=dynamic_cast<NumberValue*>(getParameterArgument(ctx,0));
+	decimal h=0.0;
+	auto* height=dynamic_cast<NumberValue*>(getParameterArgument(ctx,0));
 	if(height)
 		h=height->getNumber();
 
-	SliceNode* d = new SliceNode();
+	decimal t=0.0;
+	auto* thick=dynamic_cast<NumberValue*>(getParameterArgument(ctx,1));
+	if(thick)
+		t=thick->getNumber();
+
+	auto* d = new SliceNode();
 	d->setHeight(h);
-	d->setChildren(ctx->getInputNodes());
+	d->setThickness(t);
+	d->setChildren(ctx.getInputNodes());
 	return d;
 }

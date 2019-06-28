@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ module cup() {
 difference(){
   box(30);
   translate([0,0,3])
-    scale([0.8,0.8,1],[10,10,10])box(30); //scale with reference point
+    scale([0.8,0.8,1],[-10,-10,-10])box(30); //scale with reference point
 }
 handle();
 module handle(){
@@ -42,10 +42,11 @@ translate([7.5,-10,15])
   rotate([0,90,0])
     difference(){
       cylinder(d=25,h=5); //cylinder also accepts diameter
-      cylinder(d=20,h=5);
+      cylinder(d=20,h=1);
+      translate([0,0,4])cylinder(d=20,h=1);
       translate([-20,0,0])cube([40,20,5]);
     }
 }
 }
 
-bounds()translate([30,30,0])cup();
+bound$()translate([30,30,0])cup();

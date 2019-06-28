@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,21 +24,21 @@ CompoundStatement::CompoundStatement()
 
 CompoundStatement::~CompoundStatement()
 {
-	for(int i=0; i<children.size(); i++)
-		delete children.at(i);
+	for(Statement* s: children)
+		delete s;
 }
 
-void CompoundStatement::setChildren(QList<Statement*> stmts)
+void CompoundStatement::setChildren(const QList<Statement*>& stmts)
 {
-	this->children = stmts;
+	children = stmts;
 }
 
 QList<Statement*> CompoundStatement::getChildren() const
 {
-	return this->children;
+	return children;
 }
 
 void CompoundStatement::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

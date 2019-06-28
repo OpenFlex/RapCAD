@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------
 #	RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
-#	Copyright (C) 2010-2013 Giles Bathgate
+#	Copyright (C) 2010-2019 Giles Bathgate
 #
 #	This program is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -23,47 +23,94 @@
 #-------------------------------------------------
 VERSION = $$cat(VERSION)
 
-QT	+= core gui opengl
+QT  += core gui opengl widgets
 
+CONFIG += c++11
 TARGET = rapcad
 TEMPLATE = app
-LEXSOURCES += src/lexer.l
-YACCSOURCES += src/parser.y
 INCLUDEPATH += src
 
+DEFINES += USE_CGAL
+DEFINES += USE_READLINE
+DEFINES += USE_COMMANDLINE_PARSER
+DEFINES += USE_QGLWIDGET
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+
+# Check for Qt Version 5.2 and above
+# (so Major > 4 && Minor > 1)
+ greaterThan(QT_MINOR_VERSION, 1) {
+	DEFINES -= USE_COMMANDLINE_PARSER
+ }
+
+# Check for Qt Version 5.4 and above
+# (so Major > 4 && Minor > 3)
+ greaterThan(QT_MINOR_VERSION, 3) {
+	DEFINES -= USE_QGLWIDGET
+ }
+}
+
+
 win32 {
-	CGALROOT = "..\\CGAL-4.0\\"
-	BOOSTROOT = "..\\boost_1_49_0\\"
-	DXFLIBROOT = "..\\dxflib-2.2.0.0-1.src\\"
-	MINGWROOT = "..\\MinGW\\msys\\1.0\\bin\\"
-	INCLUDEPATH += $$CGALROOT"include"
-	INCLUDEPATH += $$CGALROOT"auxiliary\\gmp\\include"
+	DEFINES -= USE_READLINE
+	DEFINES += USE_QGLWIDGET
+
+	DXFLIBROOT = ../dxflib-3.3.4-src
+	INCLUDEPATH += $$(CGAL_ROOT)/include
+	INCLUDEPATH += $$(CGAL_ROOT)/auxiliary/gmp/include
+	INCLUDEPATH += $$(BOOST_ROOT)
+	LIBS += -L$$(BOOST_ROOT)/stage/lib
+	LIBS += -lboost_thread-mgw53-mt-1_60
+	LIBS += -lboost_system-mgw53-mt-1_60
+	LIBS += -L$$(CGAL_ROOT)/lib -lCGAL -lCGAL_Core
+	LIBS += -L$$(CGAL_ROOT)/auxiliary/gmp/lib -lmpfr-4 -lgmp-10
+	LIBS += -lopengl32 -lglu32
+	contains(DEFINES,USE_READLINE) {
+	LIBS += -lreadline
+	}
+	contains(DEFINES,USE_DXF) {
 	INCLUDEPATH += $$DXFLIBROOT
-	INCLUDEPATH += $$BOOSTROOT
-	LIBS += -L$$BOOSTROOT"bin.v2\\libs\\thread\\build\\gcc-mingw-4.6.2\\release\\threading-multi"
-	LIBS += -llibboost_thread-mgw46-mt-1_49
-	LIBS += -L$$CGALROOT"lib" -lCGAL -lCGAL_Core
-	LIBS += -L$$CGALROOT"auxiliary\\gmp\\lib" -lmpfr-4 -lgmp-10
-	LIBS += -L$$DXFLIBROOT"lib" -llibdxf
-	QMAKE_YACC = $$MINGWROOT"bison"
+	LIBS += -L$$DXFLIBROOT/release -ldxflib
+	}
+	LIBS += -lz
+	QMAKE_YACC = win_bison
 	QMAKE_YACCFLAGS += "-b y"
-	QMAKE_LEX = $$MINGWROOT"flex"
-	QMAKE_MOVE = $$MINGWROOT"mv"
-	QMAKE_DEL_FILE = $$MINGWROOT"rm -f"
+	QMAKE_LEX = win_flex
 } else {
-	LIBS += -lCGAL -lCGAL_Core -lmpfr -lgmp -ldxflib
+	LIBS += -lCGAL -lCGAL_Core -lmpfr -lgmp
+	contains(DEFINES,USE_READLINE) {
+	LIBS+= -lreadline
+	}
+	contains(DEFINES,USE_DXF) {
+	LIBS += -ldxflib
+	}
+	LIBS += -lz
 	QMAKE_YACC = bison
   macx {
-	INCLUDEPATH += /opt/local/include
-	LIBS += -L/opt/local/lib -lboost_thread-mt
-	QMAKE_MOC = $$[QT_INSTALL_BINS]\\moc -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED
+	INCLUDEPATH += /usr/local/include
+	LIBS += -L/usr/local/lib -lboost_thread-mt
   } else {
 	LIBS += -lboost_thread -lGLU
   }
 }
 
-DEFINES+=USE_CGAL
-QMAKE_CXXFLAGS += -frounding-math
+#LIBS += -Wl,-rpath,./librapcad -L./librapcad -lrapcad
+
+contains(DEFINES,USE_CGAL) {
+!clang {
+	QMAKE_CXXFLAGS += -frounding-math
+}
+}
+
+CONFIG(coverage){
+	QT += testlib
+	DEFINES += USE_INTEGTEST
+	CONFIG += debug
+  !macx {
+	QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
+	LIBS += -lgcov
+  }
+}
 
 CONFIG(official){
 	DEFINES += RAPCAD_VERSION=$$VERSION
@@ -73,9 +120,17 @@ CONFIG(official){
 	DEFINES += RAPCAD_VERSION=$$MAJOR"."$$MINOR".git."$$system(git log -1 --pretty=format:%h)
 }
 
+LEXSOURCES += \
+	src/lexer.l
+
+YACCSOURCES += \
+	src/parser.y
+
 SOURCES += \
+	contrib/qcommandlineparser.cpp \
+	contrib/qcommandlineoption.cpp \
 	src/main.cpp \
-	src/mainwindow.cpp \
+	src/ui/mainwindow.cpp \
 	src/module.cpp \
 	src/syntaxtreebuilder.cpp \
 	src/parameter.cpp \
@@ -128,7 +183,7 @@ SOURCES += \
 	src/module/primitivemodule.cpp \
 	src/node.cpp \
 	src/node/transformationnode.cpp \
-	src/glview.cpp \
+	src/ui/glview.cpp \
 	src/cgalrenderer.cpp \
 	src/point.cpp \
 	src/nodeprinter.cpp \
@@ -160,8 +215,8 @@ SOURCES += \
 	src/dxfbuilder.cpp \
 	src/module/shearmodule.cpp \
 	src/module/groupmodule.cpp \
-	src/codeeditor.cpp \
-	src/linenumberarea.cpp \
+	src/ui/codeeditor.cpp \
+	src/ui/linenumberarea.cpp \
 	src/cgalexplorer.cpp \
 	src/module/hullmodule.cpp \
 	src/node/hullnode.cpp \
@@ -173,13 +228,11 @@ SOURCES += \
 	src/node/subdivisionnode.cpp \
 	src/module/offsetmodule.cpp \
 	src/node/offsetnode.cpp \
-	src/module/polylinemodule.cpp \
-	src/node/polylinenode.cpp \
 	src/module/glidemodule.cpp \
 	src/node/glidenode.cpp \
 	src/cgalpolygon.cpp \
 	src/module/beziersurfacemodule.cpp \
-	src/preferencesdialog.cpp \
+	src/ui/preferencesdialog.cpp \
 	src/preferences.cpp \
 	src/cgalexport.cpp \
 	src/module/prismmodule.cpp \
@@ -187,8 +240,6 @@ SOURCES += \
 	src/function/sumfunction.cpp \
 	src/function/randfunction.cpp \
 	src/module/cylindersurfacemodule.cpp \
-	src/module/outlinemodule.cpp \
-	src/node/outlinenode.cpp \
 	src/module/importmodule.cpp \
 	src/builtincreator.cpp \
 	src/node/importnode.cpp \
@@ -197,11 +248,11 @@ SOURCES += \
 	src/node/resizenode.cpp \
 	src/module/rotateextrudemodule.cpp \
 	src/node/rotateextrudenode.cpp \
-	src/saveitemsdialog.cpp \
+	src/ui/saveitemsdialog.cpp \
 	src/function/versionfunction.cpp \
 	src/module/polygonmodule.cpp \
 	src/function/lengthfunction.cpp \
-	src/printconsole.cpp \
+	src/ui/printconsole.cpp \
 	src/function/strfunction.cpp \
 	src/project.cpp \
 	src/function/sinfunction.cpp \
@@ -224,18 +275,101 @@ SOURCES += \
 	src/function/sinhfunction.cpp \
 	src/function/tanhfunction.cpp \
 	src/module/centermodule.cpp \
-	src/node/centernode.cpp \
-	src/aboutdialog.cpp \
-	src/module/pointmodule.cpp \
-	src/node/pointnode.cpp \
+	src/ui/aboutdialog.cpp \
 	src/module/slicemodule.cpp \
 	src/node/slicenode.cpp \
 	src/module/conemodule.cpp \
 	src/function/lnfunction.cpp \
-	src/function/logfunction.cpp
+	src/function/logfunction.cpp \
+	src/module/writemodule.cpp \
+	src/module/writelnmodule.cpp \
+	src/callback.cpp \
+	src/product.cpp \
+	src/node/productnode.cpp \
+	src/function/radfunction.cpp \
+	src/function/degfunction.cpp \
+	src/layout.cpp \
+	src/module/projectionmodule.cpp \
+	src/node/projectionnode.cpp \
+	src/tester.cpp \
+	src/strategy.cpp \
+	src/comparer.cpp \
+	src/module/multmatrixmodule.cpp \
+	src/polygon.cpp \
+	src/onceonly.cpp \
+	src/fragment.cpp \
+	src/cgalfragment.cpp \
+	src/function/concatfunction.cpp \
+	src/node/groupnode.cpp \
+	src/decimal.cpp \
+	src/polyhedron.cpp \
+	src/module/decomposemodule.cpp \
+	src/node/decomposenode.cpp \
+	src/simpletextbuilder.cpp \
+	src/interactive.cpp \
+	src/ui/console.cpp \
+	src/module/alignmodule.cpp \
+	src/node/alignnode.cpp \
+	src/module/complementmodule.cpp \
+	src/node/complementnode.cpp \
+	src/module/radialsmodule.cpp \
+	src/node/radialsnode.cpp \
+	src/module/volumesmodule.cpp \
+	src/node/volumesnode.cpp \
+	src/cgalvolume.cpp \
+	src/function/numfunction.cpp \
+	src/rmath.cpp \
+	src/module/triangulatemodule.cpp \
+	src/node/triangulatenode.cpp \
+	src/function/normfunction.cpp \
+	src/complexexpression.cpp \
+	src/complexvalue.cpp \
+	src/function/angfunction.cpp \
+	src/transformmatrix.cpp \
+	src/module/materialmodule.cpp \
+	src/node/materialnode.cpp \
+	src/simplerenderer.cpp \
+	src/module/discretemodule.cpp \
+	src/node/discretenode.cpp \
+	src/cachemanager.cpp \
+	src/cache.cpp \
+	src/cgalcache.cpp \
+	src/function/crossfunction.cpp \
+	src/module/childrenmodule.cpp \
+	src/node/normalsnode.cpp \
+	src/module/normalsmodule.cpp \
+	src/module/simplifymodule.cpp \
+	src/node/simplifynode.cpp \
+	src/module/chainhullmodule.cpp \
+	src/function/isnumfunction.cpp \
+	src/function/isboolfunction.cpp \
+	src/function/isstrfunction.cpp \
+	src/function/islistfunction.cpp \
+	src/function/israngefunction.cpp \
+	src/function/isintfunction.cpp \
+	src/function/chrfunction.cpp \
+	src/textiterator.cpp \
+	src/node/childrennode.cpp \
+	src/function/ismat4x4function.cpp \
+	src/asciidocprinter.cpp \
+	src/generator.cpp \
+	src/qpathtextbuilder.cpp \
+	src/module/textmodule.cpp \
+	src/module/boundarymodule.cpp \
+	src/node/boundarynode.cpp \
+	src/function/isvecfunction.cpp \
+	src/node/pointsnode.cpp \
+	src/module/pointsmodule.cpp \
+	src/cgalprojection.cpp \
+	src/function/cbrtfunction.cpp
 
 HEADERS  += \
-	src/mainwindow.h \
+	contrib/OGL_helper.h \
+	contrib/fragments.h \
+	contrib/qcommandlineparser.h \
+	contrib/qcommandlineoption.h \
+	contrib/Copy_polyhedron_to.h \
+	src/ui/mainwindow.h \
 	src/module.h \
 	src/syntaxtreebuilder.h \
 	src/parameter.h \
@@ -275,7 +409,6 @@ HEADERS  += \
 	src/context.h \
 	src/value.h \
 	src/module/echomodule.h \
-	src/tau.h \
 	src/numbervalue.h \
 	src/booleanvalue.h \
 	src/textvalue.h \
@@ -295,9 +428,7 @@ HEADERS  += \
 	src/module/primitivemodule.h \
 	src/node.h \
 	src/node/transformationnode.h \
-	src/GLView.h \
 	src/cgalrenderer.h \
-	contrib/OGL_helper.h \
 	src/renderer.h \
 	src/point.h \
 	src/nodevisitor.h \
@@ -332,8 +463,7 @@ HEADERS  += \
 	src/dxfbuilder.h \
 	src/module/shearmodule.h \
 	src/module/groupmodule.h \
-	src/CodeEditor.h \
-	src/linenumberarea.h \
+	src/ui/linenumberarea.h \
 	src/cgalexplorer.h \
 	src/module/hullmodule.h \
 	src/node/hullnode.h \
@@ -345,13 +475,11 @@ HEADERS  += \
 	src/node/subdivisionnode.h \
 	src/module/offsetmodule.h \
 	src/node/offsetnode.h \
-	src/module/polylinemodule.h \
-	src/node/polylinenode.h \
 	src/module/glidemodule.h \
 	src/node/glidenode.h \
 	src/cgalpolygon.h \
 	src/module/beziersurfacemodule.h \
-	src/preferencesdialog.h \
+	src/ui/preferencesdialog.h \
 	src/preferences.h \
 	src/cgalexport.h \
 	src/module/prismmodule.h \
@@ -359,8 +487,6 @@ HEADERS  += \
 	src/function/sumfunction.h \
 	src/function/randfunction.h \
 	src/module/cylindersurfacemodule.h \
-	src/module/outlinemodule.h \
-	src/node/outlinenode.h \
 	src/module/importmodule.h \
 	src/builtincreator.h \
 	src/node/importnode.h \
@@ -369,11 +495,11 @@ HEADERS  += \
 	src/node/resizenode.h \
 	src/module/rotateextrudemodule.h \
 	src/node/rotateextrudenode.h \
-	src/saveitemsdialog.h \
+	src/ui/saveitemsdialog.h \
 	src/function/versionfunction.h \
 	src/module/polygonmodule.h \
 	src/function/lengthfunction.h \
-	src/printconsole.h \
+	src/ui/printconsole.h \
 	src/function/strfunction.h \
 	src/project.h \
 	src/function/sinfunction.h \
@@ -396,39 +522,157 @@ HEADERS  += \
 	src/function/sinhfunction.h \
 	src/function/tanhfunction.h \
 	src/module/centermodule.h \
-	src/node/centernode.h \
-	src/aboutdialog.h \
-	src/module/pointmodule.h \
-	src/node/pointnode.h \
+	src/ui/aboutdialog.h \
+	src/module/pointsmodule.h \
+	src/node/pointsnode.h \
 	src/module/slicemodule.h \
 	src/node/slicenode.h \
 	src/primitive.h \
 	src/module/conemodule.h \
 	src/function/lnfunction.h \
-	src/function/logfunction.h
+	src/function/logfunction.h \
+	src/module/writemodule.h \
+	src/module/writelnmodule.h \
+	src/callback.h \
+	src/product.h \
+	src/node/productnode.h \
+	src/function/radfunction.h \
+	src/function/degfunction.h \
+	src/layout.h \
+	src/module/projectionmodule.h \
+	src/node/projectionnode.h \
+	src/tester.h \
+	src/cgalassert.h \
+	src/strategy.h \
+	src/comparer.h \
+	src/module/multmatrixmodule.h \
+	src/onceonly.h \
+	src/ui/glview.h \
+	src/fragment.h \
+	src/cgalfragment.h \
+	src/function/concatfunction.h \
+	src/node/groupnode.h \
+	src/decimal.h \
+	src/polyhedron.h \
+	src/module/decomposemodule.h \
+	src/node/decomposenode.h \
+	src/textbuilder.h \
+	src/simpletextbuilder.h \
+	src/interactive.h \
+	src/ui/codeeditor.h \
+	src/ui/console.h \
+	src/module/alignmodule.h \
+	src/node/alignnode.h \
+	src/module/complementmodule.h \
+	src/node/complementnode.h \
+	src/module/radialsmodule.h \
+	src/node/radialsnode.h \
+	src/module/volumesmodule.h \
+	src/node/volumesnode.h \
+	src/cgalvolume.h \
+	src/function/numfunction.h \
+	src/rmath.h \
+	src/module/triangulatemodule.h \
+	src/node/triangulatenode.h \
+	src/function/normfunction.h \
+	src/complexexpression.h \
+	src/complexvalue.h \
+	src/function/angfunction.h \
+	src/transformmatrix.h \
+	src/module/materialmodule.h \
+	src/node/materialnode.h \
+	src/simplerenderer.h \
+	src/module/discretemodule.h \
+	src/node/discretenode.h \
+	src/stringify.h \
+	src/cachemanager.h \
+	src/cache.h \
+	src/cgalcache.h \
+	src/emptycache.h \
+	src/function/crossfunction.h \
+	src/module/childrenmodule.h \
+	src/node/normalsnode.h \
+	src/module/normalsmodule.h \
+	src/module/simplifymodule.h \
+	src/node/simplifynode.h \
+	contrib/qzipreader_p.h \
+	contrib/qzipwriter_p.h \
+	src/module/chainhullmodule.h \
+	src/function/isnumfunction.h \
+	src/function/isboolfunction.h \
+	src/function/isstrfunction.h \
+	src/function/islistfunction.h \
+	src/function/israngefunction.h \
+	src/function/isintfunction.h \
+	src/function/chrfunction.h \
+	src/textiterator.h \
+	src/node/childrennode.h \
+	src/function/ismat4x4function.h \
+	src/asciidocprinter.h \
+	src/generator.h \
+	src/qpathtextbuilder.h \
+	src/module/textmodule.h \
+	src/module/boundarymodule.h \
+	src/node/boundarynode.h \
+	src/config.h \
+	src/function/isvecfunction.h \
+	src/cgalprojection.h \
+	src/function/cbrtfunction.h
 
 FORMS += \
-	src/mainwindow.ui \
-	src/preferences.ui \
-	src/saveitemsdialog.ui \
-	src/printconsole.ui \
-	src/aboutdialog.ui
+	src/ui/mainwindow.ui \
+	src/ui/preferences.ui \
+	src/ui/saveitemsdialog.ui \
+	src/ui/printconsole.ui \
+	src/ui/aboutdialog.ui
 
 OTHER_FILES += \
 	COPYING
+
+userguide.target = user_guide.html
+userguide.depends = $$PWD/doc/user_guide.asciidoc
+
+win32 {
+	userguide.commands = python ..\\asciidoc-8.6.9\\asciidoc.py -o $$userguide.target $$userguide.depends
+} else {
+	userguide.commands = asciidoc -o $$userguide.target $$userguide.depends
+}
+
+QMAKE_EXTRA_TARGETS += userguide
 
 unix {
 	isEmpty(PREFIX) {
 		PREFIX = /usr
 	}
-	BINDIR = $$PREFIX/bin
-	INSTALLS += target
-	target.path =$$BINDIR
+	isEmpty(BINDIR) {
+		BINDIR = $$PREFIX/bin
+	}
+	isEmpty(DATAROOTDIR) {
+		DATAROOTDIR=$$PREFIX/share
+	}
+	isEmpty(DOCDIR) {
+		DOCDIR=$$DATAROOTDIR/doc/rapcad
+	}
+	target.path = $$BINDIR
+
+	docs.depends = $$userguide.target
+	docs.files = $$userguide.target
+	docs.path = $$DOCDIR
+
+	DEFINES += DOCDIR=$$DOCDIR
+
+	INSTALLS += \
+		target \
+		docs
 }
 
 win32|macx {
 	RESOURCES += \
 	src/icons.qrc
+}
+
+win32 {
+	RC_FILE = rapcad.rc
 }
 
 RESOURCES += \

@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,17 +21,17 @@
 
 #include <QList>
 #include "visitablenode.h"
+#include "decimal.h"
 
 class Node : public VisitableNode
 {
 public:
 	Node();
-	~Node();
-	static void cleanup();
-	void setChildren(QList<Node*>);
+	~Node() override;
+	void addChild(Node*);
+	void setChildren(const QList<Node*>&);
 	QList<Node*> getChildren() const;
 private:
-	static QList<Node*> nodes;
 	QList<Node*> children;
 };
 

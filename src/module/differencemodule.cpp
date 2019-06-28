@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,15 +17,17 @@
  */
 
 #include "differencemodule.h"
+#include "context.h"
 #include "node/differencenode.h"
 
-DifferenceModule::DifferenceModule() : Module("difference")
+DifferenceModule::DifferenceModule(Reporter& r) : Module(r,"difference")
 {
+	addDescription(tr("Subtracts from the first child its subsequent children."));
 }
 
-Node* DifferenceModule::evaluate(Context* ctx)
+Node* DifferenceModule::evaluate(const Context& ctx) const
 {
-	DifferenceNode* d = new DifferenceNode();
-	d->setChildren(ctx->getInputNodes());
+	auto* d = new DifferenceNode();
+	d->setChildren(ctx.getInputNodes());
 	return d;
 }

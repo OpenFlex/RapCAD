@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,9 +23,10 @@
 
 class TranslateModule : public Module
 {
+	Q_DECLARE_TR_FUNCTIONS(TranslateModule)
 public:
-	TranslateModule();
-	Node* evaluate(Context*);
+	explicit TranslateModule(Reporter&);
+	Node* evaluate(const Context&) const override;
 };
 
 #endif // TRANSLATEMODULE_H

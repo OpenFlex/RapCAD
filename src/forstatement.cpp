@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 
 #include "forstatement.h"
 
-ForStatement::ForStatement()
+ForStatement::ForStatement() :
+	statement(nullptr)
 {
-	statement=NULL;
 }
 
 ForStatement::~ForStatement()
@@ -28,27 +28,27 @@ ForStatement::~ForStatement()
 	delete statement;
 }
 
-void ForStatement::setArguments(QList<Argument*> args)
+void ForStatement::setArguments(const QList<Argument*>& args)
 {
-	this->arguments = args;
+	arguments = args;
 }
 
 QList<Argument*> ForStatement::getArguments() const
 {
-	return this->arguments;
+	return arguments;
 }
 
 void ForStatement::setStatement(Statement* stmt)
 {
-	this->statement = stmt;
+	statement = stmt;
 }
 
 Statement* ForStatement::getStatement() const
 {
-	return this->statement;
+	return statement;
 }
 
 void ForStatement::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

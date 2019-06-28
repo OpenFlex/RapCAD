@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,71 +18,30 @@
 
 #include "rangeiterator.h"
 
-RangeIterator::RangeIterator(RangeValue* rng)
+RangeIterator::RangeIterator(RangeValue* rng, Value* i, Value* s) :
+	ValueIterator(rng),
+	index(i),
+	step(s)
 {
-	range=rng;
-
-	Value& s=*range->getStart();
-	Value& f=*range->getFinish();
-
-	Value* v=s>f;
-	reverse=v->isTrue();
-
-	step=range->getStep();
-	if(!step) {
-		double i=reverse?-1.0:1.0;
-		defaultStep=new NumberValue(i);
-		step=defaultStep;
-	} else {
-		defaultStep=NULL;
-	}
 }
 
 RangeIterator::~RangeIterator()
 {
-	delete defaultStep;
 }
 
-void RangeIterator::first()
+ValueIterator& RangeIterator::operator++()
 {
-	index=range->getStart();
-	done=false;
+	index=Value::operation(index,Expression::Add,step);
+	return *this;
 }
 
-void RangeIterator::next()
+bool RangeIterator::operator!=(const Iterator&) const
 {
-	Value& i=*index;
-	Value& s=*step;
-	Value* r=i+s;
-	Value* c=*r==i;
-	if(c->isTrue())
-		done=true;
-	index=r;
+	auto* range=static_cast<RangeValue*>(value);
+	return range->inRange(index);
 }
 
-bool RangeIterator::isDone()
-{
-	if(done)
-		return true;
-
-	Value& s=*range->getStart();
-	Value& f=*range->getFinish();
-	Value& i=*index;
-
-	Value* lower;
-	Value* upper;
-	if(reverse) {
-		lower=i<f;
-		upper=i>s;
-	} else {
-		lower=i<s;
-		upper=i>f;
-	}
-
-	return lower->isTrue() || upper->isTrue();
-}
-
-Value* RangeIterator::currentItem() const
+Value* RangeIterator::operator*() const
 {
 	return index;
 }

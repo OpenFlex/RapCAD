@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,29 +17,57 @@
  */
 
 #include "tokenbuilder.h"
+#include "decimal.h"
 #include "parser_yacc.h"
+
 #define YY_NULL 0
-extern int lexerlex_destroy();
-extern void lexerinclude(const char*);
+extern void lexerinit(AbstractTokenBuilder*,Reporter*,const QString&);
+extern void lexerinit(AbstractTokenBuilder*,Reporter*,QFileInfo);
+extern int lexerdestroy();
+extern void lexerinclude(QFileInfo);
 extern void lexererror();
 extern int lexerlex();
+extern char* lexertext;
 extern int lexerleng;
 extern int lexerlineno;
 
-TokenBuilder::TokenBuilder()
+TokenBuilder::TokenBuilder() :
+	stringcontents(nullptr),
+	position(0)
 {
-	position=1;
+}
+
+QString TokenBuilder::getToken() const
+{
+	return token;
+}
+
+TokenBuilder::TokenBuilder(const QString& s) : TokenBuilder()
+{
+	lexerinit(this,nullptr,s);
+}
+
+TokenBuilder::TokenBuilder(Reporter& r,const QString& s) : TokenBuilder()
+{
+	lexerinit(this,&r,s);
+}
+
+TokenBuilder::TokenBuilder(Reporter& r,QFileInfo fileinfo) : TokenBuilder()
+{
+	lexerinit(this,&r,fileinfo);
 }
 
 TokenBuilder::~TokenBuilder()
 {
-	lexerlex_destroy();
+	lexerdestroy();
 }
 
 int TokenBuilder::nextToken()
 {
 	position+=lexerleng;
-	return lexerlex();
+	int next=lexerlex();
+	if(next) token=QString::fromUtf8(lexertext,lexerleng);
+	return next;
 }
 
 int TokenBuilder::getPosition() const
@@ -56,12 +84,12 @@ void TokenBuilder::buildIncludeStart()
 {
 }
 
-void TokenBuilder::buildIncludeFile(QString str)
+void TokenBuilder::buildIncludeFile(const QString& str)
 {
 	filename = str;
 }
 
-void TokenBuilder::buildIncludePath(QString str)
+void TokenBuilder::buildIncludePath(const QString& str)
 {
 	filepath = str;
 }
@@ -88,8 +116,7 @@ void TokenBuilder::buildIncludeFinish()
 
 	filename.clear();
 
-	const char* fullpath = fileinfo.absoluteFilePath().toLocal8Bit();
-	lexerinclude(fullpath);
+	lexerinclude(fileinfo);
 
 }
 
@@ -97,7 +124,7 @@ void TokenBuilder::buildUseStart()
 {
 }
 
-unsigned int TokenBuilder::buildUse(QString str)
+unsigned int TokenBuilder::buildUse(const QString& str)
 {
 	parserlval.text = new QString(str);
 	return USE;
@@ -111,7 +138,7 @@ void TokenBuilder::buildImportStart()
 {
 }
 
-unsigned int TokenBuilder::buildImport(QString str)
+unsigned int TokenBuilder::buildImport(const QString& str)
 {
 	parserlval.text = new QString(str);
 	return IMPORT;
@@ -158,12 +185,12 @@ unsigned int TokenBuilder::buildParam()
 
 unsigned int TokenBuilder::buildIf()
 {
-	return IF;
+	return TOK_IF;
 }
 
 unsigned int TokenBuilder::buildAs()
 {
-	return AS;
+	return TOK_AS;
 }
 
 unsigned int TokenBuilder::buildElse()
@@ -241,7 +268,7 @@ unsigned int TokenBuilder::buildSubtractAssign()
 	return SUBA;
 }
 
-unsigned int TokenBuilder::buildOuterProduct()
+unsigned int TokenBuilder::buildCrossProduct()
 {
 	return CP;
 }
@@ -251,59 +278,14 @@ unsigned int TokenBuilder::buildNamespace()
 	return NS;
 }
 
-unsigned int TokenBuilder::buildAssign()
-{
-	return '=';
-}
-
-unsigned int TokenBuilder::buildAdd()
-{
-	return '+';
-}
-
-unsigned int TokenBuilder::buildSubtract()
-{
-	return '-';
-}
-
-unsigned int TokenBuilder::buildTernaryCondition()
-{
-	return '?';
-}
-
-unsigned int  TokenBuilder::buildTernaryAlternate()
-{
-	return ':';
-}
-
-unsigned int TokenBuilder::buildNot()
-{
-	return '!';
-}
-
-unsigned int TokenBuilder::buildMultiply()
-{
-	return '*';
-}
-
-unsigned int TokenBuilder::buildDivide()
-{
-	return '/';
-}
-
-unsigned int TokenBuilder::buildModulus()
-{
-	return '%';
-}
-
-unsigned int TokenBuilder::buildConcatenate()
-{
-	return '~';
-}
-
 unsigned int TokenBuilder::buildAppend()
 {
-	return AP;
+	return APPEND;
+}
+
+unsigned int TokenBuilder::buildOperator(unsigned int c)
+{
+	return c;
 }
 
 unsigned int TokenBuilder::buildLegalChar(unsigned int c)
@@ -311,19 +293,36 @@ unsigned int TokenBuilder::buildLegalChar(unsigned int c)
 	return c;
 }
 
-unsigned int TokenBuilder::buildIllegalChar()
+unsigned int TokenBuilder::buildIllegalChar(const QString&)
 {
 	lexererror();
 	return YY_NULL;
 }
 
-unsigned int TokenBuilder::buildNumber(QString str)
+unsigned int TokenBuilder::buildNumber(const QString& str)
 {
-	parserlval.number = str.toDouble();
+	parserlval.number = new decimal(to_decimal(str));
 	return NUMBER;
 }
 
-unsigned int TokenBuilder::buildIdentifier(QString str)
+unsigned int TokenBuilder::buildNumberExp(const QString& str)
+{
+	parserlval.number = new decimal(parse_numberexp(str));
+	return NUMBER;
+}
+
+unsigned int TokenBuilder::buildRational()
+{
+	return UNDEF;
+}
+
+unsigned int TokenBuilder::buildRational(const QString& s)
+{
+	parserlval.number = new decimal(parse_rational(s));
+	return NUMBER;
+}
+
+unsigned int TokenBuilder::buildIdentifier(const QString& str)
 {
 	parserlval.text = new QString(str);
 	return IDENTIFIER;
@@ -339,7 +338,7 @@ void TokenBuilder::buildString(QChar c)
 	stringcontents->append(c);
 }
 
-void TokenBuilder::buildString(QString s)
+void TokenBuilder::buildString(const QString& s)
 {
 	stringcontents->append(s);
 }
@@ -354,9 +353,8 @@ void TokenBuilder::buildCommentStart()
 {
 }
 
-unsigned int TokenBuilder::buildComment(QString)
+void TokenBuilder::buildComment(const QString&)
 {
-	return YY_NULL;
 }
 
 void TokenBuilder::buildCommentFinish()
@@ -368,7 +366,7 @@ unsigned int TokenBuilder::buildCodeDocStart()
 	return DOCSTART;
 }
 
-unsigned int TokenBuilder::buildCodeDoc(QString s)
+unsigned int TokenBuilder::buildCodeDoc(const QString& s)
 {
 	parserlval.text = new QString(s.trimmed());
 	return DOCTEXT;
@@ -378,7 +376,7 @@ void TokenBuilder::buildCodeDoc()
 {
 }
 
-unsigned int TokenBuilder::buildCodeDocParam(QString s)
+unsigned int TokenBuilder::buildCodeDocParam(const QString& s)
 {
 	parserlval.text = new QString(s.trimmed());
 	return DOCPARAM;
@@ -391,6 +389,7 @@ unsigned int TokenBuilder::buildCodeDocFinish()
 
 void TokenBuilder::buildWhiteSpaceError()
 {
+	position+=lexerleng;
 }
 
 void TokenBuilder::buildWhiteSpace()
@@ -410,5 +409,6 @@ void TokenBuilder::buildFileStart(QDir pth)
 
 void TokenBuilder::buildFileFinish()
 {
-	path_stack.pop();
+	if(!path_stack.isEmpty())
+		path_stack.pop();
 }

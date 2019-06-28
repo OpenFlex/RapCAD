@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 
 #include "binaryexpression.h"
 
-BinaryExpression::BinaryExpression()
+BinaryExpression::BinaryExpression() :
+	left(nullptr),
+	right(nullptr)
 {
-	left=NULL;
-	right=NULL;
 }
 
 BinaryExpression::~BinaryExpression()
@@ -32,25 +32,25 @@ BinaryExpression::~BinaryExpression()
 
 Expression* BinaryExpression::getLeft() const
 {
-	return this->left;
+	return left;
 }
 
-void BinaryExpression::setLeft(Expression* left)
+void BinaryExpression::setLeft(Expression* l)
 {
-	this->left = left;
+	left = l;
 }
 
 Expression* BinaryExpression::getRight() const
 {
-	return this->right;
+	return right;
 }
 
-void BinaryExpression::setRight(Expression* right)
+void BinaryExpression::setRight(Expression* r)
 {
-	this->right = right;
+	right = r;
 }
 
 void BinaryExpression::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

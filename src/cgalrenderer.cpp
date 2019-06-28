@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,13 +15,36 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#if USE_CGAL
+#ifdef USE_CGAL
 #include "cgalrenderer.h"
 #include "preferences.h"
+#include "primitive.h"
 
-using CGAL::OGL::Nef3_Converter;
+CGALRenderer::CGALRenderer(Primitive* primitive) :
+	simple(new SimpleRenderer(primitive))
+{
+	loadPreferences();
+	descendChildren(primitive);
+}
 
-CGALRenderer::CGALRenderer(CGALPrimitive* pr)
+CGALRenderer::~CGALRenderer()
+{
+	delete simple;
+}
+
+void CGALRenderer::descendChildren(Primitive* p)
+{
+	typedef CGAL::OGL::Nef3_Converter<CGAL::NefPolyhedron3> converter;
+	auto* pr=dynamic_cast<CGALPrimitive*>(p);
+	if(pr) {
+		converter::convert_to_OGLPolyhedron(pr->getNefPolyhedron(),this);
+	} else {
+		for(Primitive* c: p->getChildren())
+			descendChildren(c);
+	}
+}
+
+void CGALRenderer::loadPreferences()
 {
 	Preferences* p = Preferences::getInstance();
 	setColor(markedVertexColor,p->getMarkedVertexColor());
@@ -32,21 +55,50 @@ CGALRenderer::CGALRenderer(CGALPrimitive* pr)
 	setColor(facetColor,p->getFacetColor());
 	vertexSize=p->getVertexSize();
 	edgeSize=p->getEdgeSize();
-	Nef3_Converter<CGAL::NefPolyhedron3>::convert_to_OGLPolyhedron(pr->getNefPolyhedron(),this);
 }
 
-void CGALRenderer::draw(bool skeleton, bool showedges)
+void CGALRenderer::preferencesUpdated()
 {
-	init();
+	loadPreferences();
+	init_=false;
+}
+
+void CGALRenderer::setCompiling(bool value)
+{
+	if(value) {
+		desaturate(markedVertexColor);
+		desaturate(vertexColor);
+		desaturate(markedEdgeColor);
+		desaturate(edgeColor);
+		desaturate(markedFacetColor);
+		desaturate(facetColor);
+	} else {
+		loadPreferences();
+	}
+	init_=false;
+}
+
+void CGALRenderer::desaturate(CGAL::Color& c)
+{
+	QColor rgb(c.red(),c.green(),c.blue());
+	setColor(c,QColor::fromHsv(rgb.hue(),0,rgb.value()));
+}
+
+void CGALRenderer::paint(bool skeleton, bool showedges)
+{
+	init(); //init returns instantly if its already been called.
 	if(!skeleton) {
-		glCallList(this->object_list_+2);
+		glCallList(object_list_+2);
 	}
 	if(skeleton||showedges) {
 		glDisable(GL_LIGHTING);
-		glCallList(this->object_list_+1);
-		glCallList(this->object_list_);
+		glCallList(object_list_+1);
+		glCallList(object_list_);
 		glEnable(GL_LIGHTING);
 	}
+
+	simple->paint(skeleton,showedges);
+
 }
 
 void CGALRenderer::setColor(CGAL::Color& t,QColor c)
@@ -70,12 +122,12 @@ CGAL::Color CGALRenderer::getFacetColor(bool mark) const
 	return mark ? markedFacetColor : facetColor;
 }
 
-double CGALRenderer::getVertexSize() const
+float CGALRenderer::getVertexSize() const
 {
 	return vertexSize;
 }
 
-double CGALRenderer::getEdgeSize() const
+float CGALRenderer::getEdgeSize() const
 {
 	return edgeSize;
 }

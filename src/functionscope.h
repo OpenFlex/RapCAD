@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -28,12 +28,12 @@ class FunctionScope : public Scope
 {
 public:
 	FunctionScope();
-	~FunctionScope();
+	~FunctionScope() override;
 	void setExpression(Expression*);
 	Expression* getExpression() const;
-	void setStatements(QList<Statement*>);
+	void setStatements(const QList<Statement*>&);
 	QList<Statement*> getStatements() const;
-	void accept(TreeVisitor&);
+	void accept(TreeVisitor&) override;
 private:
 	Expression* expression;
 	QList<Statement*> statements;

@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,22 +20,27 @@
 #define POINT_H
 
 #include <QString>
+#include "decimal.h"
+
+#ifndef USE_CGAL
+#include "transformmatrix.h"
 
 class Point
 {
 public:
-	Point() : x(0), y(0), z(0) { }
-	Point(double x,double y,double z) : x(x), y(y), z(z) { }
-	bool operator==(const Point that) const;
-	QString toString() const;
-	void getXYZ(double& x, double& y, double& z) const;
-	void getXY(double& x, double& y) const;
-	double getX() const;
-	double getY() const;
-	double getZ() const;
+	Point() : _x(0), _y(0), _z(0) { }
+	Point(decimal x,decimal y,decimal z) : _x(x), _y(y), _z(z) { }
+	bool operator==(const Point&) const;
+	decimal x() const;
+	decimal y() const;
+	decimal z() const;
+	Point transform(TransformMatrix*) const;
 private:
-	QString toString(const double) const;
-	double x, y, z;
+	decimal _x, _y, _z;
 };
+#endif
+
+QString to_string(const Point&);
+QString to_string(const Point&,const bool);
 
 #endif // POINT_H

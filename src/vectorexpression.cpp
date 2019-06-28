@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@
 
 #include "vectorexpression.h"
 
-VectorExpression::VectorExpression()
+VectorExpression::VectorExpression() :
+	additionalCommas(0)
 {
 }
 
@@ -26,14 +27,14 @@ VectorExpression::~VectorExpression()
 {
 }
 
-void VectorExpression::setChildren(QList<Expression*> exp)
+void VectorExpression::setChildren(const QList<Expression*>& exp)
 {
-	this->children = exp;
+	children = exp;
 }
 
 QList<Expression*> VectorExpression::getChildren() const
 {
-	return this->children;
+	return children;
 }
 
 void VectorExpression::setAdditionalCommas(int count)
@@ -48,5 +49,5 @@ int VectorExpression::getAdditionalCommas() const
 
 void VectorExpression::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

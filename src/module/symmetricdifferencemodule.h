@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 #define SYMMETRICDIFFERENCEMODULE_H
 
 #include "module.h"
-#include "context.h"
 
 class SymmetricDifferenceModule : public Module
 {
+	Q_DECLARE_TR_FUNCTIONS(SymmetricDifferenceModule)
 public:
-	SymmetricDifferenceModule();
-	Node* evaluate(Context*);
+	explicit SymmetricDifferenceModule(Reporter&);
+	Node* evaluate(const Context&) const override;
 };
 
 #endif // SYMMETRICDIFFERENCEMODULE_H

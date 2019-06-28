@@ -1,3 +1,21 @@
+/*
+ *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
+ *   Copyright (C) 2010-2019 Giles Bathgate
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "invocation.h"
 
 Invocation::Invocation()
@@ -8,37 +26,37 @@ Invocation::~Invocation()
 {
 }
 
-void Invocation::setName(QString name)
+void Invocation::setName(const QString& n)
 {
-	this->name = name;
+	name = n;
 }
 
 QString Invocation::getName() const
 {
-	return this->name;
+	return name;
 }
 
-void Invocation::setNamespace(QString name)
+void Invocation::setNamespace(const QString& name)
 {
-	this->nameSpace = name;
+	nameSpace = name;
 }
 
 QString Invocation::getNamespace() const
 {
-	return this->nameSpace;
+	return nameSpace;
 }
 
-void Invocation::setArguments(QList<Argument*> args)
+void Invocation::setArguments(const QList<Argument*>& args)
 {
-	this->arguments = args;
+	arguments = args;
 }
 
 QList<Argument*> Invocation::getArguments() const
 {
-	return this->arguments;
+	return arguments;
 }
 
 void Invocation::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }

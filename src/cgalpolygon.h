@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,27 +15,44 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#if USE_CGAL
+#ifdef USE_CGAL
 #ifndef CGALPOLYGON_H
 #define CGALPOLYGON_H
 
-#include <QList>
 #include "cgal.h"
+
+#include <QList>
 #include "polygon.h"
+#include "cgalprojection.h"
 
 class CGALPolygon : public Polygon
 {
 public:
-	CGALPolygon();
+
+	explicit CGALPolygon(const class CGALPrimitive&);
+	~CGALPolygon();
 	QList<CGAL::Point3> getPoints() const;
-	void append(CGAL::Point3);
-	void prepend(CGAL::Point3);
-	CGAL::Vector3 getNormal();
-	void setNormal(CGAL::Vector3);
+	QList<CGAL::Point2> getProjectedPoints();
+
+	CGAL::Direction3 getDirection() const;
 	CGAL::Vector3 getNormal() const;
+	void calculatePlane();
+
+	CGAL::Plane3 getPlane() const;
+	void setPlane(const CGAL::Plane3&);
+
+	bool getHole() const;
+	void setHole(bool value);
+
+	CGALProjection* getProjection();
+	bool sameProjection(CGALPolygon*);
 private:
-	QList<CGAL::Point3> points;
-	CGAL::Vector3 normal;
+	void calculateProjection();
+
+	CGAL::Plane3 plane;
+	CGALProjection* projection;
+	CGAL::Direction3 direction;
+	bool hole;
 };
 #endif // CGALPOLYGON_H
 #endif

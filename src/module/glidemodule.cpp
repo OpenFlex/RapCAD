@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,23 +17,18 @@
  */
 
 #include "glidemodule.h"
+#include "context.h"
 #include "node/glidenode.h"
 #include "value.h"
 
-GlideModule::GlideModule() : Module("glide")
+GlideModule::GlideModule(Reporter& r) : Module(r,"glide")
 {
-	addParameter("closed");
+	addDescription(tr("Glides the first child along the outline of the second child."));
 }
 
-Node* GlideModule::evaluate(Context* ctx)
+Node* GlideModule::evaluate(const Context& ctx) const
 {
-	bool close=false;
-	Value* closeVal=getParameterArgument(ctx,0);
-	if(closeVal)
-		close=closeVal->isTrue();
-
-	GlideNode* n=new GlideNode();
-	n->setClosed(close);
-	n->setChildren(ctx->getInputNodes());
+	auto* n=new GlideNode();
+	n->setChildren(ctx.getInputNodes());
 	return n;
 }

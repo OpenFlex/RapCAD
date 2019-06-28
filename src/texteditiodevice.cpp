@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,11 +19,11 @@
 #include "texteditiodevice.h"
 
 TextEditIODevice::TextEditIODevice(QTextEdit* textEdit,QObject* parent) :
-	QIODevice(parent)
-	, textEdit(textEdit)
+	QIODevice(parent),
+	textEdit(textEdit)
 {
 	open(QIODevice::WriteOnly|QIODevice::Text);
-	connect(this,SIGNAL(textRecieved(QString)),this,SLOT(writeTextEdit(QString)));
+	connect(this,&TextEditIODevice::textRecieved,this,&TextEditIODevice::writeTextEdit);
 }
 
 qint64 TextEditIODevice::readData(char*,qint64)
@@ -37,7 +37,8 @@ qint64 TextEditIODevice::writeData(const char* data, qint64 maxSize)
 	return maxSize;
 }
 
-void TextEditIODevice::writeTextEdit(QString data)
+void TextEditIODevice::writeTextEdit(const QString& data)
 {
-	textEdit->append(data);
+	textEdit->moveCursor(QTextCursor::End);
+	textEdit->insertPlainText(data);
 }

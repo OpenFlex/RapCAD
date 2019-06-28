@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 class Variable : public Expression
 {
 public:
-	enum StorageClass_e {
+	enum Storage_e {
 		Var,
 		Special,
 		Const,
@@ -33,15 +33,15 @@ public:
 	};
 
 	Variable();
-	~Variable();
-	void setName(QString);
+	~Variable() override;
+	void setName(const QString&);
 	QString getName() const;
-	void setStorageClass(StorageClass_e);
-	StorageClass_e getStorageClass() const;
-	void accept(TreeVisitor&);
+	void setStorage(Storage_e);
+	Storage_e getStorage() const;
+	void accept(TreeVisitor&) override;
 private:
 	QString name;
-	StorageClass_e storageClass;
+	Storage_e storage;
 };
 
 #endif // VARIABLE_H

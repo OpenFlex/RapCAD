@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,75 +20,93 @@
 #include "functionscope.h"
 #include "context.h"
 
-Function::Function()
+Function::Function() :
+	scope(nullptr)
 {
-	scope=NULL;
 }
 
-Function::Function(QString n)
+Function::Function(const QString& n) :
+	scope(nullptr),
+	name(n)
 {
-	scope=NULL;
-	name=n;
 }
 
 Function::~Function()
 {
-	for(int i=0; i<parameters.size(); i++)
-		delete parameters.at(i);
+	for(Parameter* p: parameters)
+		delete p;
 
 	delete scope;
 }
 
 QString Function::getName() const
 {
-	return this->name;
+	return name;
 }
 
-void Function::setName(QString name)
+void Function::setName(const QString& n)
 {
-	this->name = name;
+	name = n;
 }
 
 
 QList<Parameter*> Function::getParameters() const
 {
-	return this->parameters;
+	return parameters;
 }
 
-void Function::setParameters(QList<Parameter*> params)
+void Function::setParameters(const QList<Parameter*>& params)
 {
-	this->parameters = params;
+	parameters = params;
 }
 
 void Function::setScope(Scope* scp)
 {
-	this->scope = scp;
+	scope = scp;
 }
 
 Scope* Function::getScope() const
 {
-	return this->scope;
+	return scope;
 }
 
 void Function::accept(TreeVisitor& v)
 {
-	v.visit(this);
+	v.visit(*this);
 }
 
-Value* Function::evaluate(Context*)
+Value* Function::evaluate(const Context&) const
 {
-	return NULL;
+	return nullptr;
 }
 
-void Function::addParameter(QString name)
+void Function::addParameter(const QString& name)
 {
-	Parameter* p = new Parameter();
+	auto* p = new Parameter();
 	p->setName(name);
 	parameters.append(p);
 }
 
-Value *Function::getParameterArgument(Context* ctx, int index)
+void Function::addParameter(const QString& name, const QString& desc)
+{
+	auto* p=new Parameter();
+	p->setName(name);
+	p->addDescription(desc);
+	parameters.append(p);
+}
+
+Value* Function::getParameterArgument(const Context& ctx, int index) const
 {
 	Parameter* p = parameters.at(index);
-	return ctx->getArgument(index,p->getName());
+	return ctx.getArgument(index,p->getName());
+}
+
+QString Function::getDescription() const
+{
+	return description;
+}
+
+void Function::addDescription(const QString &value)
+{
+	description = value;
 }

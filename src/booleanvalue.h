@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,12 +24,13 @@
 class BooleanValue : public Value
 {
 public:
-	BooleanValue(bool);
-	QString getValueString() const;
-	bool isTrue() const;
+	explicit BooleanValue(bool);
+	QString getValueString() const override;
+	Value* toNumber() override;
+	bool isTrue() const override;
 private:
-	Value* operation(Expression::Operator_e);
-	Value* operation(Value&,Expression::Operator_e);
+	Value* operation(Expression::Operator_e) override;
+	Value* operation(Value&,Expression::Operator_e) override;
 	bool boolean;
 };
 

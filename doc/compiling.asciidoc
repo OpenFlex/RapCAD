@@ -41,9 +41,9 @@ sudo apt-get install git-core
 Dependencies
 ++++++++++++
 [source,shell]
--------------------------------------------------------------------
-sudo apt-get install g++ libcgal-dev libqt4-dev bison flex libdxflib-dev
--------------------------------------------------------------------
+---------------------------------------------------------------------------------
+sudo apt-get install g++ libcgal-dev libqt5opengl5-dev bison flex libreadline-dev
+---------------------------------------------------------------------------------
 
 RapCAD
 ++++++
@@ -59,73 +59,60 @@ make
 Windows
 ~~~~~~~
 
-MinGW
-^^^^^
-
-* Download the MinGW Automated installer package
-http://sourceforge.net/projects/mingw/files/Installer/mingw-get-inst/mingw-get-inst-20111118/mingw-get-inst-20111118.exe[mingw-get-inst-20111118.exe]
-* Check the C++ compiler checkbox.
-* Check the msys checkbox
-* Install to +C:\MinGW\+
-
-
 Qt (MinGW)
 ^^^^^^^^^^
 
 * Download Qt installer
-http://get.qt.nokia.com/qt/source/qt-win-opensource-4.8.0-mingw.exe[qt-win-opensource-4.8.0-mingw.exe]
-* Ignore warning about win32api version.
-* Install to default location +C:\Qt\+
+http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-windows-x86-mingw492-5.5.1.exe[qt-opensource-windows-x86-mingw492-5.5.1.exe]
+* Install to default location +C:\Qt\Qt5.5.1\+
 
 CMake
 ^^^^^
 
 * Download CMake installer
-http://www.cmake.org/files/v2.8/cmake-2.8.7-win32-x86.exe[cmake-2.8.7-win32-x86.exe]
+https://cmake.org/files/v3.4/cmake-3.4.0-rc2-win32-x86.exe[cmake-3.4.0-rc2-win32-x86.exe]
 * Check the 'Add cmake to the system path for the current user' checkbox
-* Install to default location +C:\Program Files\CMake 2.8+
+* Install to default location +C:\Program Files\CMake 3.4+
 
 Boost
 ^^^^^
 
 * Download Boost source
-http://downloads.sourceforge.net/project/boost/boost/1.49.0/boost_1_49_0.zip[boost_1_49_0.zip]
-* Extract all to +C:\+ (sources will end up in +C:\boost_1_49_0\+ )
+http://downloads.sourceforge.net/project/boost/boost/1.59.0/boost_1.59.0.7z[boost_1.59.0.7z]
+* Extract all to +C:\+ (sources will end up in +C:\boost_1_59_0\+ )
 * Use the QT Development Command Prompt +
-+Start->Program Files->Qt by Nokia v4.8.0 (MinGW OpenSource)->QT 4.8.0 Command Prompt+
++Start->Program Files->Qt by Nokia v5.5.1 (MinGW OpenSource)->QT 5.5.1 Command Prompt+
 [source,bat]
 -------------------------
-cd "C:\boost_1_49_0"
-bootstrap.bat
-.\bjam toolset=gcc release thread
+cd "C:\boost_1_55_0"
+bootstrap.bat mingw
+.\b2 toolset=gcc variant=release --with-thread --with-system
 -------------------------
 
-.CGAL
------------------------------------------------------------------
-https://gforge.inria.fr/frs/download.php/30386/CGAL-4.0-Setup.exe
------------------------------------------------------------------
+CGAL
+^^^^
 
-NOTE: CGAL-4.0-Setup.exe is not a binary distribution, just an installer that installs the
+* Download CGAL installer
+https://github.com/CGAL/cgal/releases/download/releases%2FCGAL-4.7/CGAL-4.7-Setup.exe[CGAL-4.7-Setup.exe]
+
+
+NOTE: CGAL-4.7-Setup.exe is not a binary distribution, just an installer that installs the
 source.
 
 * No need for 'CGAL Examples and Demos'
 * Make sure 'mpfr and gmp precompiled libs' is checked
-* Install to +C:\CGAL-4.0\+
+* Install to +C:\CGAL-4.7\+
 * Make sure 'CGAL_DIR' environment checked.
 * Use the QT Development Command Prompt +
-+Start->Program Files->Qt by Nokia v4.8.0 (MinGW OpenSource)->QT 4.8.0 Command Prompt+
++Start->Program Files->Qt by Nokia v5.5.1 (MinGW OpenSource)->QT 5.5.1 Command Prompt+
 [source,bat]
 -------------------------------
-set PATH=%PATH%;"C:\Program Files\CMake 2.8\bin"
-cd "C:\CGAL-4.0"
-cmake -G"MinGW Makefiles" -DBOOST_ROOT="C:\boost_1_49_0" -DBOOST_LIBRARYDIR="C:\boost_1_49_0\bin.v2\libs\thread\build\gcc-mingw-4.6.2\release\threading-multi" .
-make
+set PATH=%PATH%;"C:\Program Files\CMake 3.4\bin"
+set BOOST_ROOT=C:\boost_1_59_0
+cd "C:\CGAL-4.7"
+cmake -G"MinGW Makefiles" .
+mingw32-make
 -------------------------------
-
-.dxflib
-------------------------------------------------------------------------------------
-ftp://anonymous:anonymous@ribbonsoft.com/archives/dxflib/dxflib-2.2.0.0-1.src.tar.gz
-------------------------------------------------------------------------------------
 
 Mac OS X 10.6.2
 ~~~~~~~~~~~~~~~
@@ -150,18 +137,6 @@ Dependencies
 -------------------------------------------------------------
 sudo port install cgal qt4-mac
 -------------------------------------------------------------
-
-dxflib
-++++++
-[source,shell]
------------------------------------------------------------------------------------------
-tar -xzf dxflib-2.2.0.0-1.src.tar.gz &&
-cd dxflib-2.2.0.0-1.src &&
-./configure --prefix=/opt/local &&
-make depend &&
-make &&
-sudo make install
------------------------------------------------------------------------------------------
 
 RapCAD
 ++++++

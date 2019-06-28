@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,9 @@ class Renderer
 {
 public:
 	virtual ~Renderer() {}
-	virtual void draw(bool,bool)=0;
+	virtual void paint(bool,bool)=0;
+	virtual void preferencesUpdated()=0;
+	virtual void setCompiling(bool)=0;
 };
 
 #endif // RENDERER_H

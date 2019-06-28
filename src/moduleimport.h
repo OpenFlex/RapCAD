@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -28,13 +28,13 @@ class ModuleImport : public Declaration
 {
 public:
 	ModuleImport();
-	~ModuleImport();
-	void setImport(QString);
+	~ModuleImport() override;
+	void setImport(const QString&);
 	QString getImport() const;
-	void setName(QString);
+	void setName(const QString&);
 	QString getName() const;
-	void accept(TreeVisitor&);
-	void setParameters(QList<Parameter*>);
+	void accept(TreeVisitor&) override;
+	void setParameters(const QList<Parameter*>&);
 	QList<Parameter*> getParameters() const;
 private:
 	QString import;

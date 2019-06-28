@@ -1,0 +1,835 @@
+Align
+^^^^^
+
+Aligns its children to the given faces.
+
+Parameters
+++++++++++
+|=========
+|top|Specifies alignment to the top face.
+|bottom|Specifies alignment to the bottom face.
+|north|Specifies alignment to the north face.
+|south|Specifies alignment to the south face.
+|east|Specifies alignment to the east face.
+|west|Specifies alignment to the west face.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+align();
+align(top,bottom,north,south,east,west);
+---------------
+
+Bezier_surface
+^^^^^^^^^^^^^^
+
+Constructs a bezier surface.
+
+Parameters
+++++++++++
+|=========
+|mesh|A 4 by 4 matrix of points.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+bezier_surface();
+bezier_surface(mesh);
+---------------
+
+Bound
+^^^^^
+
+Shows the bounding box of its children.
+
+Center
+^^^^^^
+
+Centers its children to the origin.
+
+Chain_hull
+^^^^^^^^^^
+
+Constructs a chained hull of its children.
+
+Parameters
+++++++++++
+|=========
+|closed|Specifies whether to close the chain.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+chain_hull();
+chain_hull(closed);
+---------------
+
+Child
+^^^^^
+
+The child module is deprecated, use the children module instead.
+
+Parameters
+++++++++++
+|=========
+|index|The index of the child to use.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+child();
+child(index);
+---------------
+
+Children
+^^^^^^^^
+
+Provides access to children as passed to a module.
+
+Parameters
+++++++++++
+|=========
+|index|A list of indices which determines which children to use.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+children();
+children(index);
+---------------
+
+Circle
+^^^^^^
+
+Constructs a circle. It will be placed centered on the xy plane.
+
+Parameters
+++++++++++
+|=========
+|radius|The radius of the circle.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+circle();
+circle(radius);
+---------------
+
+Complement
+^^^^^^^^^^
+
+Creates the boolean complement of its children.
+
+Cone
+^^^^
+
+Constructs a cone. It is placed centered on the xy plane.
+
+Parameters
+++++++++++
+|=========
+|height|The height of the cone.
+|radius1|The radius of the bottom of the cone.
+|radius2|The radius of the top of the cone.
+|center|Specifies whether the cone should be vertically centered along the z axis.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+cone();
+cone(height,radius1,radius2,center);
+---------------
+
+Cube
+^^^^
+
+Constructs a cube or cuboid. It will be placed in the first octant unless the center parameter is true.
+
+Parameters
+++++++++++
+|=========
+|size|The size of the cube. A single value or x,y,z
+|center|Specifies whether to center the cube at the origin
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+cube();
+cube(size,center);
+---------------
+
+Cylinder
+^^^^^^^^
+
+Constructs a cylinder. It will be placed centered on the xy plane.
+
+Parameters
+++++++++++
+|=========
+|height|The height of the cylinder
+|radius|The radius of the cylinder
+|center|Specifies whether to center the cylinder vertically along the z axis.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+cylinder();
+cylinder(height,radius,center);
+---------------
+
+Cylinder_surface
+^^^^^^^^^^^^^^^^
+
+Constructs the surface of a cylinder without top and bottom facets.
+
+Parameters
+++++++++++
+|=========
+|height|The height of the cylinder surface.
+|radius|The radius of the cylinder surface.
+|center|Specifies whether to center the cylinder along the z axis.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+cylinder_surface();
+cylinder_surface(height,radius,center);
+---------------
+
+Decompose
+^^^^^^^^^
+
+Decomposes its children into convex geometry.
+
+Difference
+^^^^^^^^^^
+
+Subtracts from the first child its subsequent children.
+
+Discrete
+^^^^^^^^
+
+Rearranges the vertices of its children to lie on discrete values rounded to the given number of decimal places.
+
+Parameters
+++++++++++
+|=========
+|places|The number of decimal places to which to round.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+discrete();
+discrete(places);
+---------------
+
+Echo
+^^^^
+
+The echo module is deprecated please use 'write' or 'writeln' module instead.
+
+Glide
+^^^^^
+
+Glides the first child along the outline of the second child.
+
+Group
+^^^^^
+
+Groups its children into single geometry.
+
+Hull
+^^^^
+
+Creates a boundry shape from the points of its children.
+
+Parameters
+++++++++++
+|=========
+|concave|Determines whether the hull may be concave
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+hull();
+hull(concave);
+---------------
+
+Import
+^^^^^^
+
+The import module is depricated please use the import declaration instead.
+
+Parameters
+++++++++++
+|=========
+|file|The name of the file to import.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+import();
+import(file);
+---------------
+
+Intersection
+^^^^^^^^^^^^
+
+Intersects the first child its subsequent children.
+
+Linear_extrude
+^^^^^^^^^^^^^^
+
+Extrudes its children along the given axis.
+
+Parameters
+++++++++++
+|=========
+|height|The height of the extrusion.
+|axis|The axis along which to perform the extrusion
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+linear_extrude();
+linear_extrude(height,axis);
+---------------
+
+Material
+^^^^^^^^
+
+Assigns its children to a unique material id.
+
+Minkowski
+^^^^^^^^^
+
+Creates a minkowski sum of the first child and its subsequent children.
+
+Mirror
+^^^^^^
+
+Mirrors its children through a plane perpendicular to the given normal vector.
+
+Parameters
+++++++++++
+|=========
+|vector|The normal vector of the mirror plane.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+mirror();
+mirror(vector);
+---------------
+
+Multmatrix
+^^^^^^^^^^
+
+Multiplies its children with the given 4 by 4 affine transformation matrix.
+
+Parameters
+++++++++++
+|=========
+|matrix|The 4 by 4 affine transformation matrix
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+multmatrix();
+multmatrix(matrix);
+---------------
+
+Normal
+^^^^^^
+
+Shows normal vectors on the faces of its children.
+
+Offset
+^^^^^^
+
+Moves the outlines of polygons outward or inward by a given amount.
+
+Parameters
+++++++++++
+|=========
+|delta|The amount to offset the polygon. The polygon is offset inwards, when negative.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+offset();
+offset(delta);
+---------------
+
+Outline
+^^^^^^^
+
+Creates the outline of its children.
+
+Boundary
+^^^^^^^^
+
+Creates the boundary of its children.
+
+Points
+^^^^^^
+
+Constructs points.
+
+Parameters
+++++++++++
+|=========
+|points|The location of the points.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+points();
+points(points);
+---------------
+
+Point
+^^^^^
+
+Constructs points.
+
+Parameters
+++++++++++
+|=========
+|points|The location of the points.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+point();
+point(points);
+---------------
+
+Polygon
+^^^^^^^
+
+Constructs a polygon.
+
+Parameters
+++++++++++
+|=========
+|points|The vertices are provided by the points list.
+|lines|The lines are a list of indices to the vertices.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+polygon();
+polygon(points,lines);
+---------------
+
+Polyline
+^^^^^^^^
+
+Constructs a line connecting multiple points.
+
+Parameters
+++++++++++
+|=========
+|points|The vertices are provided by the points list.
+|lines|The lines are a list of indices to the vertices.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+polyline();
+polyline(points,lines);
+---------------
+
+Polyhedron
+^^^^^^^^^^
+
+Construct a polyhedron. Special care must be taken to ensure the correct winding order.
+
+Parameters
+++++++++++
+|=========
+|points|The vertices of the shape are provided by the points list
+|faces|The faces is list of indices to the vertices. These relate to the facets of the polyhedron.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+polyhedron();
+polyhedron(points,faces);
+---------------
+
+Prism
+^^^^^
+
+Constructs a regular prism. It will be placed centered on the xy plane.
+
+Parameters
+++++++++++
+|=========
+|height|The height of the prism.
+|sides|The number of size to the prism.
+|apothem|The radius from the center to the outer faces of the prism.
+|center|Specifies whether to center the prism vertically along the z axis.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+prism();
+prism(height,sides,apothem,center);
+---------------
+
+Projection
+^^^^^^^^^^
+
+Flattens its children onto the xy plane.
+
+Parameters
+++++++++++
+|=========
+|base|Specifies that only polygons with normals perpendicular to the xy plane be considered.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+projection();
+projection(base);
+---------------
+
+Radial
+^^^^^^
+
+Shows the radius of its children.
+
+Resize
+^^^^^^
+
+Modifies its children to match the given size.
+
+Parameters
+++++++++++
+|=========
+|newsize|The new size of the shape.
+|auto|Specifies whether to auto-scale any 0-dimensions
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+resize();
+resize(newsize,auto);
+---------------
+
+Rotate_extrude
+^^^^^^^^^^^^^^
+
+Extrudes its children about the given axis.
+
+Parameters
+++++++++++
+|=========
+|angle|The sweep angle for the extrusion.
+|axis|The axis of rotation. When no axis is given the shape is first rotated 90° about the x axis, then extruded about the z axis.
+|radius|The radius of the extrusion.
+|height|The helical height of the extrusion.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+rotate_extrude();
+rotate_extrude(angle,axis,radius,height);
+---------------
+
+Rotate
+^^^^^^
+
+Rotates its children about the origin or an arbitrary axis.
+
+Parameters
+++++++++++
+|=========
+|angle|The angle of rotation in degress. It can be a single value or rotation about x,y,z. With the latter, three rotations are performed in the order x,y,z
+|vector|The axis of rotation when used with a single angle value
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+rotate();
+rotate(angle,vector);
+---------------
+
+Scale
+^^^^^
+
+Scales its children by the given vector.
+
+Parameters
+++++++++++
+|=========
+|size|The factor by which to scale the object.
+|reference|A center reference point for the scaling.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+scale();
+scale(size,reference);
+---------------
+
+Shear
+^^^^^
+
+Shears its children in the given planes.
+
+Parameters
+++++++++++
+|=========
+|x|The yz plane.
+|y|The xz plane.
+|z|The xy plane.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+shear();
+shear(x,y,z);
+---------------
+
+Simplify
+^^^^^^^^
+
+Performs a mesh simplification on its children.
+
+Parameters
+++++++++++
+|=========
+|ratio|The mesh simplification stops when the number of edges is below the ratio of the initial number of edges
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+simplify();
+simplify(ratio);
+---------------
+
+Slice
+^^^^^
+
+Slices its children at the given height.
+
+Parameters
+++++++++++
+|=========
+|height|The height at which to slice.
+|thickness|The thickness of the slice.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+slice();
+slice(height,thickness);
+---------------
+
+Sphere
+^^^^^^
+
+Constructs a sphere. The sphere will be centered at the origin.
+
+Parameters
+++++++++++
+|=========
+|radius|The radius of the sphere.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+sphere();
+sphere(radius);
+---------------
+
+Square
+^^^^^^
+
+Constructs a square or rectangle. It will be placed in the first quadrant.
+
+Parameters
+++++++++++
+|=========
+|size|The size of the square
+|center|Specifies whether to center the square on the xy plane
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+square();
+square(size,center);
+---------------
+
+Subdiv
+^^^^^^
+
+Sibdivides its children into smoother geometry.
+
+Parameters
+++++++++++
+|=========
+|level|The number of smoothing levels to apply.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+subdiv();
+subdiv(level);
+---------------
+
+Symmetric_difference
+^^^^^^^^^^^^^^^^^^^^
+
+Subtracts its children from each other.
+
+Text
+^^^^
+
+Generates text.
+
+Parameters
+++++++++++
+|=========
+|text|The text to generate
+|font|The font of the text
+|size|The size of the text
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+text();
+text(text,font,size);
+---------------
+
+Translate
+^^^^^^^^^
+
+Moves its children along the given vector.
+
+Parameters
+++++++++++
+|=========
+|vector|The vector to move along
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+translate();
+translate(vector);
+---------------
+
+Triangulate
+^^^^^^^^^^^
+
+Triangulates its children.
+
+Union
+^^^^^
+
+Unions its children into single geometry.
+
+Volume
+^^^^^^
+
+Provides information about the volume of its children.
+
+Parameters
+++++++++++
+|=========
+|mass|Specifies that the center of mass also be calculated.
+|=========
+
+Examples
+++++++++
+[source,csharp]
+---------------
+volume();
+volume(mass);
+---------------
+
+Writeln
+^^^^^^^
+
+Writes the given text line to the console window.
+
+Write
+^^^^^
+
+Write the given text to the console window.
+

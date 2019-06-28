@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,23 +15,37 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#if USE_CGAL
+#ifdef USE_CGAL
 #ifndef CGALEXPORT_H
 #define CGALEXPORT_H
 
 #include <QString>
+#include <QXmlStreamWriter>
 #include "cgalprimitive.h"
+#include "reporter.h"
 
 class CGALExport
 {
+	Q_DECLARE_TR_FUNCTIONS(CGALExport)
 public:
-	CGALExport(CGALPrimitive*);
+	CGALExport(Primitive*,Reporter&);
 	void exportResult(QString);
+
 private:
 	void exportOFF(QString);
-	void exportAsciiSTL(QString,bool);
+	void exportAsciiSTL(QString);
+	void exportVRML(QString filename);
+	void exportOBJ(QString);
 	void exportAMF(QString);
-	CGALPrimitive* primitive;
+	void export3MF(QString);
+	void exportCSG(QString);
+	void exportNEF(QString);
+	void exportSVG(QString);
+	Reporter& reporter;
+	Primitive* primitive;
+	void exportAMFObject(CGALPrimitive* p, QXmlStreamWriter& xml);
+	void descendChildren(Primitive* p, QXmlStreamWriter& xml);
+	int id;
 };
 
 #endif // CGALEXPORT_H

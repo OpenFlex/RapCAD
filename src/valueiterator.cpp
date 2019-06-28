@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,27 +18,28 @@
 
 #include "valueiterator.h"
 
-ValueIterator::ValueIterator(Value* val)
+ValueIterator::ValueIterator() : ValueIterator(nullptr)
 {
-	this->value=val;
 }
 
-void ValueIterator::first()
+ValueIterator::ValueIterator(Value* val) :
+	value(val),
+	done(false)
 {
-	this->done=false;
 }
 
-void ValueIterator::next()
+ValueIterator& ValueIterator::operator++()
 {
-	this->done=true;
+	done=true;
+	return *this;
 }
 
-bool ValueIterator::isDone()
+bool ValueIterator::operator!=(const Iterator&) const
 {
-	return done;
+	return !done;
 }
 
-Value* ValueIterator::currentItem() const
+Value* ValueIterator::operator*() const
 {
-	return this->value;
+	return value;
 }

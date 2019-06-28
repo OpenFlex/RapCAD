@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,10 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
-#ifdef Q_WS_WIN
+class Primitive;
+#include <qglobal.h>
+
+#ifdef Q_OS_WIN
 #include <windows.h>
 #define Polygon _Polygon
 #endif
@@ -27,6 +30,18 @@
 #include <QList>
 #include "point.h"
 
-typedef QList<Point> Polygon;
+class Polygon
+{
+public:
+	explicit Polygon(const Primitive&);
+	void append(int);
+	void prepend(int);
+	QList<Point> getPoints() const;
+	QList<int> getIndexes() const;
+	void setIndexes(const QList<int>& value);
+protected:
+	QList<int> indexes;
+	const Primitive& parent;
+};
 
 #endif // POLYGON_H

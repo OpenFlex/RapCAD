@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,16 +20,19 @@
 #define SYNTAXHIGHLIGHTER_H
 
 #include <QSyntaxHighlighter>
+#include <QHash>
 #include "abstracttokenbuilder.h"
+#include "module.h"
 
 class SyntaxHighlighter : public QSyntaxHighlighter, private AbstractTokenBuilder
 {
 	Q_OBJECT
 public:
-	SyntaxHighlighter(QTextDocument* parent = 0);
+	explicit SyntaxHighlighter(QTextDocument* parent = nullptr);
+	void setModuleNames(const QHash<QString,Module*>&);
 	void stop();
 protected:
-	void highlightBlock(const QString& text);
+	void highlightBlock(const QString& text) override;
 private:
 	enum Blockstate_e {
 		Initial=-1,
@@ -37,86 +40,82 @@ private:
 		CodeDoc
 	};
 
-	int nextToken();
-	int getPosition() const;
-	int getLineNumber() const;
-	void buildIncludeStart();
-	void buildIncludeFile(QString);
-	void buildIncludePath(QString);
-	void buildIncludeFinish();
-	void buildUseStart();
-	unsigned int buildUse(QString);
-	void buildUseFinish();
-	void buildImportStart();
-	unsigned int buildImport(QString);
-	void buildImportFinish();
-	unsigned int buildModule();
-	unsigned int buildFunction();
-	unsigned int buildTrue();
-	unsigned int buildFalse();
-	unsigned int buildUndef();
-	unsigned int buildConst();
-	unsigned int buildParam();
-	unsigned int buildIf();
-	unsigned int buildAs();
-	unsigned int buildElse();
-	unsigned int buildFor();
-	unsigned int buildReturn();
-	unsigned int buildLessEqual();
-	unsigned int buildGreatEqual();
-	unsigned int buildEqual();
-	unsigned int buildNotEqual();
-	unsigned int buildAnd();
-	unsigned int buildOr();
-	unsigned int buildComponentwiseMultiply();
-	unsigned int buildComponentwiseDivide();
-	unsigned int buildIncrement();
-	unsigned int buildDecrement();
-	unsigned int buildAddAssign();
-	unsigned int buildSubtractAssign();
-	unsigned int buildOuterProduct();
-	unsigned int buildNamespace();
-	unsigned int buildAssign();
-	unsigned int buildAdd();
-	unsigned int buildSubtract();
-	unsigned int buildTernaryCondition();
-	unsigned int buildTernaryAlternate();
-	unsigned int buildNot();
-	unsigned int buildMultiply();
-	unsigned int buildDivide();
-	unsigned int buildModulus();
-	unsigned int buildConcatenate();
-	unsigned int buildAppend();
-	unsigned int buildLegalChar(unsigned int);
-	unsigned int buildIllegalChar();
-	unsigned int buildNumber(QString);
-	unsigned int buildIdentifier(QString);
-	void buildStringStart();
-	void buildString(QChar);
-	void buildString(QString);
-	unsigned int buildStringFinish();
-	void buildCommentStart();
-	unsigned int buildComment(QString);
-	void buildCommentFinish();
-	unsigned int buildCodeDocStart();
-	unsigned int buildCodeDoc(QString);
-	void buildCodeDoc();
-	unsigned int buildCodeDocParam(QString);
-	unsigned int buildCodeDocFinish();
-	void buildWhiteSpaceError();
-	void buildWhiteSpace();
-	void buildNewLine();
-	void buildFileStart(QDir);
-	void buildFileFinish();
+	int nextToken() override;
+	int getPosition() const override;
+	int getLineNumber() const override;
+	void buildIncludeStart() override;
+	void buildIncludeFile(const QString&) override;
+	void buildIncludePath(const QString&) override;
+	void buildIncludeFinish() override;
+	void buildUseStart() override;
+	unsigned int buildUse(const QString&) override;
+	void buildUseFinish() override;
+	void buildImportStart() override;
+	unsigned int buildImport(const QString&) override;
+	void buildImportFinish() override;
+	unsigned int buildModule() override;
+	unsigned int buildFunction() override;
+	unsigned int buildTrue() override;
+	unsigned int buildFalse() override;
+	unsigned int buildUndef() override;
+	unsigned int buildConst() override;
+	unsigned int buildParam() override;
+	unsigned int buildIf() override;
+	unsigned int buildAs() override;
+	unsigned int buildElse() override;
+	unsigned int buildFor() override;
+	unsigned int buildReturn() override;
+	unsigned int buildLessEqual() override;
+	unsigned int buildGreatEqual() override;
+	unsigned int buildEqual() override;
+	unsigned int buildNotEqual() override;
+	unsigned int buildAnd() override;
+	unsigned int buildOr() override;
+	unsigned int buildComponentwiseMultiply() override;
+	unsigned int buildComponentwiseDivide() override;
+	unsigned int buildIncrement() override;
+	unsigned int buildDecrement() override;
+	unsigned int buildAddAssign() override;
+	unsigned int buildSubtractAssign() override;
+	unsigned int buildCrossProduct() override;
+	unsigned int buildNamespace() override;
+	unsigned int buildAppend() override;
+	unsigned int buildOperator(unsigned int) override;
+	unsigned int buildLegalChar(unsigned int) override;
+	unsigned int buildIllegalChar(const QString& s) override;
+	unsigned int buildNumber(const QString&) override;
+	unsigned int buildNumberExp(const QString&) override;
+	unsigned int buildRational() override;
+	unsigned int buildRational(const QString&) override;
+	unsigned int buildIdentifier(const QString&) override;
+	void buildStringStart() override;
+	void buildString(QChar) override;
+	void buildString(const QString&) override;
+	unsigned int buildStringFinish() override;
+	void buildCommentStart() override;
+	void buildComment(const QString&) override;
+	void buildCommentFinish() override;
+	unsigned int buildCodeDocStart() override;
+	unsigned int buildCodeDoc(const QString&) override;
+	void buildCodeDoc() override;
+	unsigned int buildCodeDocParam(const QString&) override;
+	unsigned int buildCodeDocFinish() override;
+	void buildWhiteSpaceError() override;
+	void buildWhiteSpace() override;
+	void buildNewLine() override;
+	void buildFileStart(QDir) override;
+	void buildFileFinish() override;
+	QString getToken() const override;
 
 	QTextCharFormat keywordFormat;
 	QTextCharFormat	numberFormat;
 	QTextCharFormat stringFormat;
 	QTextCharFormat errorFormat;
 	QTextCharFormat operatorFormat;
+	QTextCharFormat moduleFormat;
 	QTextCharFormat codeDocFormat;
 	QTextCharFormat codeDocParamFormat;
+	QHash<QString,Module*> moduleNames;
 	int startIndex;
-	int stringStart;
 };
 #endif // SYNTAXHIGHLIGHTER_H

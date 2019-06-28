@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,168 +17,420 @@
  */
 
 #include "nodeprinter.h"
+#include "onceonly.h"
 
 NodePrinter::NodePrinter(QTextStream& s) : result(s)
 {
 }
 
-void NodePrinter::visit(PrimitiveNode* n)
+void NodePrinter::visit(const PrimitiveNode& n)
 {
-	result << "polyhedron([";
-	QList<Point> ptlist;
-	QList<Polygon> polygons=n->getPolygons();
-	foreach(Polygon pg, polygons) {
-		foreach(Point p, pg) {
-			if(!ptlist.contains(p))
-				ptlist.append(p);
-		}
+	Primitive* pr=n.getPrimitive();
+	switch(pr->getType())
+	{
+		case Primitive::Lines:
+			result << "polyline([";
+			break;
+		default:
+			result << "polyhedron([";
 	}
 
-	for(int i=0; i<ptlist.size(); i++) {
-		Point p = ptlist.at(i);
-		QString pt = p.toString();
-		if(i>0)
+	printPrimitive(pr);
+	result << "])";
+	printChildren(n);
+}
+
+void NodePrinter::printPrimitive(Primitive* pr)
+{
+	OnceOnly first;
+	for(const auto& p: pr->getPoints()) {
+		if(!first())
 			result << ",";
-		result << pt;
+		result << to_string(p);
 	}
 	result << "],[";
 
-	for(int i=0; i<polygons.size(); i++) {
-		Polygon pg = polygons.at(i);
-		if(i>0)
+	OnceOnly first_pg;
+#ifdef USE_CGAL
+	auto* cp=dynamic_cast<CGALPrimitive*>(pr);
+	if(cp) {
+		for(CGALPolygon* pg: cp->getCGALPolygons()) {
+			if(!first_pg())
+				result << ",";
+			printPolygon(*pg);
+		}
+	}
+#endif
+	auto* ph=dynamic_cast<Polyhedron*>(pr);
+	if(ph) {
+		for(Polygon* pg: ph->getPolygons()) {
+			if(!first_pg())
+				result << ",";
+			printPolygon(*pg);
+		}
+	}
+}
+
+void NodePrinter::printPolygon(const Polygon& pg)
+{
+	result << "[";
+	OnceOnly first;
+	for(auto i: pg.getIndexes()) {
+		if(!first())
 			result << ",";
+		result << QString().setNum(i);
+	}
+	result << "]";
+}
+
+void NodePrinter::visit(const UnionNode& n)
+{
+	result << "union()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const GroupNode& n)
+{
+	result << "group()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const DifferenceNode& n)
+{
+	result << "difference()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const IntersectionNode& n)
+{
+	result << "intersection()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const SymmetricDifferenceNode& n)
+{
+	result << "symmetric_difference()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const MinkowskiNode& n)
+{
+	result << "minkowski()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const GlideNode& n)
+{
+	result << "glide()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const HullNode& n)
+{
+	if(n.getChain()) {
+		result << "chain_hull(";
+		if(n.getClosed())
+			result << "true";
+		result << ")";
+	} else {
+		result << "hull(";
+		if(n.getConcave())
+			result << "concave=true";
+		result << ")";
+	}
+	printChildren(n);
+}
+
+void NodePrinter::visit(const LinearExtrudeNode& n)
+{
+	result << "linear_extrude(";
+	result << to_string(n.getHeight());
+	result << ")";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const RotateExtrudeNode& n)
+{
+	result << "rotate_extrude(";
+	result << to_string(n.getSweep());
+	result << ",";
+	result << to_string(n.getAxis());
+	result << ",";
+	result << to_string(n.getRadius());
+	result << ",";
+	result << to_string(n.getHeight());
+	result << ")";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const BoundsNode& n)
+{
+	result << "bound$()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const SubDivisionNode& n)
+{
+	result << "subdiv";
+	printArguments(n.getLevel());
+	printChildren(n);
+}
+
+void NodePrinter::visit(const OffsetNode& n)
+{
+	result << "offset(";
+	result << to_string(n.getAmount());
+	result << ")";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const BoundaryNode& n)
+{
+	result << "boundary()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const ImportNode& im)
+{
+	result << "import(\"";
+	result << im.getImport();
+	result << "\");";
+}
+
+void NodePrinter::printChildren(const Node& n)
+{
+	QList<Node*> children = n.getChildren();
+	if(children.length()>0) {
+		result << "{";
+		for(Node* c: children)
+			c->accept(*this);
+		result << "}";
+	} else {
+		result << ";";
+	}
+}
+
+void NodePrinter::printArguments(const QString &name, bool a)
+{
+	result << "(";
+	if(a) {
+		result << name << "=true";
+	}
+	result << ")";
+}
+
+void NodePrinter::printArguments(int a)
+{
+	result << "(";
+	result << a;
+	result << ")";
+}
+
+void NodePrinter::printArguments(const decimal& a)
+{
+	result << "(";
+	result << to_string(a);
+	result << ")";
+}
+
+void NodePrinter::printArguments(const QList<Point>& pts)
+{
+	result << "(";
+	if(pts.count()>1)
 		result << "[";
-		for(int j=0; j<pg.size(); j++) {
-			if(j>0)
-				result << ",";
-			Point p = pg.at(j);
-			int i = ptlist.indexOf(p);
-			result << QString().setNum(i);
-		}
+	OnceOnly first;
+	for(const auto& p: pts) {
+		if(!first())
+			result << ",";
+		result << to_string(p);
+	}
+	if(pts.count()>1)
 		result << "]";
+	result << ")";
+}
+
+void NodePrinter::printArguments(const Polygon& pg)
+{
+	result << "([";
+	OnceOnly first;
+	for(const auto& p: pg.getPoints()) {
+		if(!first())
+			result << ",";
+		result << to_string(p);
 	}
-	result << "]);";
+	result << "])";
 }
 
-void NodePrinter::visit(PolylineNode* n)
+void NodePrinter::printArguments(const QList<int>& list)
 {
-	printOperation(n,"polyline");
+	if(list.count()==0) {
+		result << "()";
+		return;
+	}
+
+	result << "([";
+	OnceOnly first;
+	for(const auto& i: list) {
+		if(!first())
+			result << ",";
+		result << i;
+	}
+	result << "])";
 }
 
-void NodePrinter::visit(UnionNode* n)
+void NodePrinter::printArguments(const QList<AlignNode::Face_t>& t)
 {
-	printOperation(n,"union");
-}
-
-void NodePrinter::visit(DifferenceNode* n)
-{
-	printOperation(n,"difference");
-}
-
-void NodePrinter::visit(IntersectionNode* n)
-{
-	printOperation(n,"intersection");
-}
-
-void NodePrinter::visit(SymmetricDifferenceNode* n)
-{
-	printOperation(n,"symmetric_difference");
-}
-
-void NodePrinter::visit(MinkowskiNode* n)
-{
-	printOperation(n,"minkowski");
-}
-
-void NodePrinter::visit(GlideNode* n)
-{
-	printOperation(n,"glide");
-}
-
-void NodePrinter::visit(HullNode* n)
-{
-	printOperation(n,"hull");
-}
-
-void NodePrinter::visit(LinearExtrudeNode* n)
-{
-	printOperation(n,"linear_extrude");
-}
-
-void NodePrinter::visit(RotateExtrudeNode* n)
-{
-	printOperation(n,"rotate_extrude");
-}
-
-void NodePrinter::visit(BoundsNode* n)
-{
-	printOperation(n,"bounds");
-}
-
-void NodePrinter::visit(SubDivisionNode* n)
-{
-	printOperation(n,"subdiv");
-}
-
-void NodePrinter::visit(OffsetNode* n)
-{
-	printOperation(n,"offset");
-}
-
-void NodePrinter::visit(OutlineNode* n)
-{
-	printOperation(n,"outline");
-}
-
-void NodePrinter::visit(ImportNode* n)
-{
-	printOperation(n,"import");
-}
-
-void NodePrinter::printOperation(Node* n,QString name)
-{
-	result << name;
-	result << "(){";
-	foreach(Node* c,n->getChildren())
-		c->accept(*this);
-	result << "}";
-}
-
-void NodePrinter::visit(ResizeNode* n)
-{
-	printOperation(n,"resize");
-}
-
-void NodePrinter::visit(CenterNode* n)
-{
-	printOperation(n,"center");
-}
-
-void NodePrinter::visit(PointNode* n)
-{
-	printOperation(n,"point");
-}
-
-void NodePrinter::visit(SliceNode* n)
-{
-	printOperation(n,"slice");
-}
-
-void NodePrinter::visit(TransformationNode* n)
-{
-	result << "multmatrix([[";
-	for(int i=0; i<16; i++) {
-		if(i>0) {
-			if(i%4)
-				result << ",";
-			else
-				result << "],[";
+	result << "(";
+	OnceOnly first;
+	for(AlignNode::Face_t a: t) {
+		if(!first())
+			result << ",";
+		switch(a) {
+			case AlignNode::Top:
+				result << "top";
+				break;
+			case AlignNode::Bottom:
+				result << "bottom";
+				break;
+			case AlignNode::North:
+				result << "north";
+				break;
+			case AlignNode::South:
+				result << "south";
+				break;
+			case AlignNode::West:
+				result << "west";
+				break;
+			case AlignNode::East:
+				result << "east";
+				break;
 		}
-		result << n->matrix[i];
-
+		result << "=true";
 	}
-	result << "]]){";
-	foreach(Node* c,n->getChildren())
-		c->accept(*this);
-	result << "}";
+	result << ")";
+}
+
+void NodePrinter::visit(const ResizeNode& n)
+{
+	result << "resize(";
+	result << to_string(n.getSize());
+	if(n.getAutoSize())
+		result << ",auto=true";
+	result << ")";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const AlignNode& n)
+{
+	if(n.getCenter()) {
+		result << "center()";
+	} else {
+		result << "align";
+		printArguments(n.getAlign());
+	}
+	printChildren(n);
+}
+
+void NodePrinter::visit(const PointsNode& n)
+{
+	result << "points";
+	printArguments(n.getPoints());
+	printChildren(n);
+}
+
+void NodePrinter::visit(const SliceNode& n)
+{
+	result << "slice(";
+	result << to_string(n.getHeight()) << "," << to_string(n.getThickness());
+	result << ")";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const ProductNode&)
+{
+}
+
+void NodePrinter::visit(const ProjectionNode& n)
+{
+	result << "projection";
+	printArguments("base",n.getBase());
+	printChildren(n);
+}
+
+void NodePrinter::visit(const DecomposeNode& n)
+{
+	result << "decompose()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const ComplementNode& n)
+{
+	result << "complement()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const RadialsNode& n)
+{
+	result << "radial$()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const VolumesNode& n)
+{
+	result << "volume$()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const TriangulateNode& n)
+{
+	result << "triangulate()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const MaterialNode& n)
+{
+	result << "material()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const DiscreteNode& n)
+{
+	result << "discrete";
+	printArguments(n.getPlaces());
+	printChildren(n);
+}
+
+void NodePrinter::visit(const NormalsNode& n)
+{
+	result << "normal$()";
+	printChildren(n);
+}
+
+void NodePrinter::visit(const SimplifyNode& n)
+{
+	result << "simplify";
+	printArguments(n.getRatio());
+	printChildren(n);
+}
+
+void NodePrinter::visit(const ChildrenNode& n)
+{
+	result << "children";
+	QList<int> idx=n.getIndexes();
+	if(idx.count()==1)
+		printArguments(idx[0]);
+	else
+		printArguments(idx);
+
+	printChildren(n);
+}
+
+void NodePrinter::visit(const TransformationNode& n)
+{
+	TransformMatrix* m=n.getMatrix();
+	result << "multmatrix(";
+	if(m)
+		result << m->toString();
+	result << ")";
+	printChildren(n);
 }

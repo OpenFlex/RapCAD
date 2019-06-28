@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -27,10 +27,10 @@ class ModuleScope : public Scope
 {
 public:
 	ModuleScope();
-	~ModuleScope();
-	QList<Declaration*> getDeclarations() const;
-	void setDeclarations(QList<Declaration*>);
-	void accept(TreeVisitor&);
+	~ModuleScope() override;
+	QList<Declaration*> getDeclarations() const override;
+	void setDeclarations(const QList<Declaration*>&);
+	void accept(TreeVisitor&) override;
 private:
 	QList<Declaration*> declarations;
 };

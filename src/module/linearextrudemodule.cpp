@@ -1,6 +1,6 @@
 /*
  *   RapCAD - Rapid prototyping CAD IDE (www.rapcad.org)
- *   Copyright (C) 2010-2013 Giles Bathgate
+ *   Copyright (C) 2010-2019 Giles Bathgate
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,23 +17,33 @@
  */
 
 #include "linearextrudemodule.h"
+#include "context.h"
 #include "node/linearextrudenode.h"
 #include "numbervalue.h"
+#include "vectorvalue.h"
 
-LinearExtrudeModule::LinearExtrudeModule() : Module("linear_extrude")
+LinearExtrudeModule::LinearExtrudeModule(Reporter& r) : Module(r,"linear_extrude")
 {
-	addParameter("height");
+	addDescription(tr("Extrudes its children along the given axis."));
+	addParameter("height",tr("The height of the extrusion."));
+	addParameter("axis",tr("The axis along which to perform the extrusion"));
 }
 
-Node* LinearExtrudeModule::evaluate(Context* ctx)
+Node* LinearExtrudeModule::evaluate(const Context& ctx) const
 {
-	double h=1.0;
-	NumberValue* height=dynamic_cast<NumberValue*>(getParameterArgument(ctx,0));
+	decimal h=1.0;
+	auto* height=dynamic_cast<NumberValue*>(getParameterArgument(ctx,0));
 	if(height)
 		h=height->getNumber();
 
-	LinearExtrudeNode* d = new LinearExtrudeNode();
+	Point axis(0,0,1);
+	auto* vecVal=dynamic_cast<VectorValue*>(getParameterArgument(ctx,1));
+	if(vecVal)
+		axis=vecVal->getPoint();
+
+	auto* d = new LinearExtrudeNode();
 	d->setHeight(h);
-	d->setChildren(ctx->getInputNodes());
+	d->setAxis(axis);
+	d->setChildren(ctx.getInputNodes());
 	return d;
 }
